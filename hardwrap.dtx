@@ -1,0 +1,277 @@
+% \iffalse
+%
+%<*internal>
+\begingroup
+%</internal>
+%<*batchfile>
+\input docstrip.tex
+\keepsilent
+\preamble
+  ____________________________
+  The HARDWRAP package
+  (C) 2010 Will Robertson
+  (C) 2010 Kevin Godby
+  License information appended
+
+\endpreamble
+\postamble
+
+Copyright (C) 2010 by Will Robertson <will.robertson@latex-project.org>
+Copyright (C) 2010 by Kevin Godby <godbyk@gmail.com>
+
+Distributable under the LaTeX Project Public License,
+version 1.3c or higher (your choice). The latest version of
+this license is at: http://www.latex-project.org/lppl.txt
+
+This work is "maintained" (as per LPPL maintenance status)
+by Will Robertson.
+
+This work consists of the file  hardwrap.dtx
+          and the derived files hardwrap.sty,
+                                hardwrap.ins, and
+                                hardwrap.pdf.
+
+\endpostamble
+\askforoverwritefalse
+\generate{\file{hardwrap.sty}{\from{hardwrap.dtx}{package}}}
+%</batchfile>
+%<batchfile>\endbatchfile
+%<*internal>
+\generate{\file{hardwrap.ins}{\from{hardwrap.dtx}{batchfile}}}
+\def\tmpa{plain}
+\ifx\tmpa\fmtname\endgroup\expandafter\bye\fi
+\endgroup
+%</internal>
+%
+%    \begin{macrocode}
+%<*driver>
+\ProvidesFile{hardwrap.dtx}
+%</driver>
+%<package>\ProvidesPackage{hardwrap}
+%<*package>
+  [2010/10/02 v0.1 Hard wrap messages]
+%</package>
+%    \end{macrocode}
+%
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{xcolor,hardwrap,lipsum,booktabs}
+\linespread{1.05}      % A bit more space between lines
+\frenchspacing         % Remove extra space after punctuation
+\definecolor{niceblue}{rgb}{0.1,0.2,1}
+\def\theCodelineNo{\textcolor{niceblue}{\sffamily\tiny\arabic{CodelineNo}}}
+\newcommand*\pkg[1]{\textsf{#1}}
+\begin{document}
+  \DocInput{\jobname.dtx}
+\end{document}
+%</driver>
+%
+% \fi
+%
+% \errorcontextlines=999
+% \makeatletter
+%
+% \GetFileInfo{\jobname.dtx}
+%
+% \title{The \pkg{\jobname} package}
+% \author{Kevin Godby \and Will Robertson}
+% \date{\filedate \qquad \fileversion}
+%
+% \maketitle
+%
+% \section{Introduction}
+%
+%
+% \section{User interface}
+%
+% ^^A Experimenting with the layout of documenting commands:
+%
+% \begin{tabular}{@{}ll@{}}
+% \toprule
+% \cs{hardwrap} & \marg{N} \\
+% & \marg{function} \\
+% & \marg{newline} \\
+% & \marg{text} \\
+% \midrule
+% \multicolumn{2}{@{}p{0.5\linewidth}@{}}{
+% This command will wrap \meta{text} to a text block of \meta{N} characters wide, inserting \meta{newline} at the end of each line and processing the result with \meta{function.}
+% } \\
+% \bottomrule
+% \end{tabular}
+%
+%
+% \section{Examples}
+%
+% \hardwrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
+%   Sed feugiat. Cum sociis natoque penatibus et
+%   magnis dis parturient montes, nascetur ridiculus mus. Ut
+%   pellentesque augue sed urna. Vestibulum diam eros, fringilla et,
+%   consectetuer eu, nonummy id, sapien. Nullam at lectus. In sagittis
+%   ultrices mauris. Curabitur malesuada erat sit amet massa. Fusce
+%   blandit. Aliquam erat volutpat.  Aliquam euismod. Aenean vel lectus.
+%   Nunc imperdiet justo nec dolor;}
+%
+% \PackageWarning{foobar}{^^A
+%   Sed feugiat. Cum sociis natoque penatibus et
+%   magnis dis parturient montes, nascetur ridiculus mus. Ut
+%   pellentesque augue sed urna. Vestibulum diam eros, fringilla et,
+%   consectetuer eu, nonummy id, sapien. Nullam at lectus. In sagittis
+%   ultrices mauris. Curabitur malesuada erat sit amet massa. Fusce
+%   blandit. Aliquam erat volutpat.  Aliquam euismod. Aenean vel lectus.
+%   Nunc imperdiet justo nec dolor;}
+%
+% The command
+% \begin{verbatim}
+% \hardwrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
+%   Sed feugiat. Cum sociis natoque...;}
+% \end{verbatim}
+% produces the following in the console output:
+% \begin{verbatim}
+%Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis
+%(foobar)                dis parturient montes, nascetur ridiculus mus. Ut
+%(foobar)                pellentesque augue sed urna. Vestibulum diam eros,
+%(foobar)                fringilla et, consectetuer eu, nonummy id, sapien.
+%(foobar)                Nullam at lectus. In sagittis ultrices mauris.
+%(foobar)                Curabitur malesuada erat sit amet massa. Fusce
+%(foobar)                blandit. Aliquam erat volutpat. Aliquam euismod.
+%(foobar)                Aenean vel lectus. Nunc imperdiet justo nec
+%(foobar)                dolor; on input line 102.
+% \end{verbatim}
+% Compare this to without the wrapping:
+% \begin{verbatim}
+%Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis dis
+% parturient montes, nascetur ridiculus mus. Ut pellentesque augue sed urna. Ves
+%tibulum diam eros, fringilla et, consectetuer eu, nonummy id, sapien. Nullam at
+% lectus. In sagittis ultrices mauris. Curabitur malesuada erat sit amet massa. 
+%Fusce blandit. Aliquam erat volutpat. Aliquam euismod. Aenean vel lectus. Nunc 
+%imperdiet justo nec dolor; on input line 110.
+% \end{verbatim}
+% Note that words are not kept together when breaking over lines; e.g., `Vestibulum' broken between lines two and three.
+%
+% \newpage
+% \part{Implementation of \textsf{\jobname}}
+%\iffalse
+%<*package>
+%\fi
+% This is the package implementation.
+%
+% \section{Counters and variables}
+%    \begin{macrocode}
+\newcount\maxlinecount
+\maxlinecount=79\relax
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\newcount\hw@charcount
+\hw@charcount=-1\relax
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\newcount\hw@wordcount
+\begingroup
+  \def\1{}
+  \global\futurelet\hw@blankspace\1 % space
+\endgroup
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\hw@currtext{}
+\def\hw@currline{}
+\def\hw@currword{}
+\protected\def\hw@newline{}
+%    \end{macrocode}
+%
+% \section{Main procedure}
+%
+%    \begin{macrocode}
+\newcommand\hardwrap[4]{%
+  \begingroup
+    \maxlinecount=#1\relax
+    \edef\@tempa{#4}%
+    \edef\@tempa{\detokenize\expandafter{\@tempa}}%
+    \expandafter\hw@scan\@tempa\hw@scanstop
+    \def\hw@newline{#3}
+    #2{\hw@wrappedtext}
+  \endgroup
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\hw@scan{%
+  \futurelet\let@token\hw@process
+}
+%    \end{macrocode}
+% 
+%    \begin{macrocode}
+\def\hw@scanstop{\hw@scanstop}
+\def\hw@process{%
+%    \end{macrocode}
+% Final loop:
+%    \begin{macrocode}
+  \ifx\let@token\hw@scanstop\relax
+    \ifnum\numexpr
+        (\hw@charcount+\hw@wordcount+1)\relax<\maxlinecount\relax
+      \protected@edef\hw@wrappedtext{%
+        \hw@currtext\hw@currline\space\hw@currword
+      }%
+    \else
+      \protected@edef\hw@wrappedtext{%
+        \hw@currtext\hw@currline\hw@newline\hw@currword
+      }%
+    \fi
+    \let\next\@gobble % gobble \hw@scanstop
+%    \end{macrocode}
+% 
+%    \begin{macrocode}
+  \else\ifx\let@token\hw@blankspace
+    \ifnum\numexpr
+        (\hw@charcount+\hw@wordcount)\relax<\maxlinecount\relax
+      \advance\hw@charcount by \hw@wordcount
+      \ifx\hw@currline\@empty
+        \protected@edef\hw@currline{\hw@currword}%      
+      \else
+        \advance\hw@charcount by 1\relax % account for the space character      
+        \protected@edef\hw@currline{\hw@currline\space\hw@currword}%
+      \fi
+    \else
+      \hw@charcount=\hw@wordcount\relax
+      \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@newline}%
+      \let\hw@currline\hw@currword
+    \fi
+    \hw@wordcount=1\relax
+    \let\hw@currword\@empty
+    \let\next\hw@dochar
+  \else
+    \advance\hw@wordcount by 1\relax
+    \let\next\hw@dochar
+  \fi\fi
+  \next
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\hw@dochar#1{%
+  \protected@edef\hw@currword{\hw@currword#1}%
+  \hw@scan
+}
+%    \end{macrocode}
+%
+% Fin.
+%
+%\iffalse
+%</package>
+%\fi
+%
+% \Finale
+%
+% \typeout{*************************************************************}
+% \typeout{*}
+% \typeout{* To finish the installation you have to move the following}
+% \typeout{* file into a directory searched by TeX:}
+% \typeout{*}
+% \typeout{* \space\space\space hardwrap.sty}
+% \typeout{*}
+% \typeout{*************************************************************}
+%
+\endinput
+
