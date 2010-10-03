@@ -18,3 +18,8 @@ $(PKG).sty: $(PKG).ins
 README: README.markdown
 	cp -f $< $@
 
+.PHONY: clean
+
+clean:
+	rm -f $(RESULTS) $(PKG).ins README $(PKG).aux $(PKG).log $(PKG).pdf $(PKG).idx $(PKG).tar.gz
+
