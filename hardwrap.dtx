@@ -298,7 +298,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
   \else\ifx\let@token\hw@blankspace
     \ifnum\numexpr
-        (\hw@charcount+\hw@wordcount)\relax<\maxlinecount\relax
+        (\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
       \advance\hw@charcount by \hw@wordcount
       \ifx\hw@currline\@empty
         \protected@edef\hw@currline{\hw@currword}%      
