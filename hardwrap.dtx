@@ -104,25 +104,27 @@ This work consists of the file  hardwrap.dtx
 % package and document class authors to do this.
 %
 % \begin{quote}
-%   \cs{GeneratePackageLogMacros}\marg{pkgname}\\
-%   \cs{GenerateClassLogMacros}\marg{clsname}
+%   \cs{GeneratePackageLogMacros}\oarg{prefix}\marg{pkgname}\\
+%   \cs{GenerateClassLogMacros}\oarg{prefix}\marg{clsname}
 % \end{quote}
+%
+% If the optional argument \meta{prefix} is not given, it is set equal to \meta{pkgname}.
 %
 % The \cs{GeneratePackageLogMacros} macro will generate the following macros:
 %
 % \begin{quote}
-%   \cs{\meta{pkgname}@info}\marg{info}\\
-%   \cs{\meta{pkgname}@info@noline}\marg{info}\\
-%   \cs{\meta{pkgname}@warning}\marg{warning}\\
-%   \cs{\meta{pkgname}@warning@noline}\marg{warning}\\
-%   \cs{\meta{pkgname}@error}\marg{error}\marg{help}
+%   \cs{\meta{prefix}@info}\marg{info}\\
+%   \cs{\meta{prefix}@info@noline}\marg{info}\\
+%   \cs{\meta{prefix}@warning}\marg{warning}\\
+%   \cs{\meta{prefix}@warning@noline}\marg{warning}\\
+%   \cs{\meta{prefix}@error}\marg{error}\marg{help}
 % \end{quote}
 %
 % For instance, calling \cs{GeneratePackageLogMacros}\earg{mypackage}
 % will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, etc.
 %
 % The arguments for the macros are the same as the arguments for
-% \cs{PackageInfo}, \cs{PackageWarning}, etc.  An additional macro,
+% \cs{PackageInfo}\marg{pkgname}, \cs{PackageWarning}\marg{pkgname}, etc.  An additional macro,
 % \cs{\meta{pkgname}@info@noline}, is provided which suppresses \LaTeX's
 % ``\texttt{on line \meta{num}}'' suffix.
 %
@@ -187,7 +189,7 @@ This work consists of the file  hardwrap.dtx
 % \section{Required Packages}
 % \begin{macro}{ifthen}
 %    \begin{macrocode}
-\RequirePackage{ifthen}
+\RequirePackage{ifthen,ifmtarg,ifplatform}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -429,8 +431,8 @@ This work consists of the file  hardwrap.dtx
 % well, generate the logging macros.
 %
 %    \begin{macrocode}
-\newcommand{\GeneratePackageLogMacros}[1]{%
-  \setcounter{hw@pkgname@length}{\hw@strlen{#1}}%
+\newcommand{\GeneratePackageLogMacros}[2][]{%
+  \setcounter{hw@pkgname@length}{\hw@strlen{#2}}%
   \setcounter{hw@info@length}{\the\hw@maxprintline}%
   \addtocounter{hw@info@length}{-\value{hw@pkgname@length}}%
   \addtocounter{hw@info@length}{-16}%
@@ -442,13 +444,13 @@ This work consists of the file  hardwrap.dtx
   \let\hw@info\PackageInfo
   \let\hw@warning\PackageWarning
   \let\hw@error\PackageError
-  \hw@generate@logging@macros{#1}%
+  \hw@generate@logging@macros{#1}{#2}%
 }
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-\newcommand{\GenerateClassLogMacros}[1]{%
-  \setcounter{hw@pkgname@length}{\hw@strlen{#1}}%
+\newcommand{\GenerateClassLogMacros}[2][]{%
+  \setcounter{hw@pkgname@length}{\hw@strlen{#2}}%
   \setcounter{hw@info@length}{\the\hw@maxprintline}%
   \addtocounter{hw@info@length}{-\value{hw@pkgname@length}}%
   \addtocounter{hw@info@length}{-14}%
@@ -460,7 +462,7 @@ This work consists of the file  hardwrap.dtx
   \let\hw@info\ClassInfo
   \let\hw@warning\ClassWarning
   \let\hw@error\ClassError
-  \hw@generate@logging@macros{#1}%
+  \hw@generate@logging@macros{#1}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -469,27 +471,34 @@ This work consists of the file  hardwrap.dtx
 % \begin{macro}{\hw@generate@logging@macros}
 % And now for the code that generates all the logging macros:
 %    \begin{macrocode}
-\newcommand{\hw@generate@logging@macros}[1]{%
+\newcommand{\hw@generate@logging@macros}[2]{%
+  \@ifmtarg{#1}{
+    \hw@generate@logging@macros@aux{#2}{#2}
+  }{
+    \hw@generate@logging@macros@aux{#1}{#2}
+  }
+}
+\newcommand{\hw@generate@logging@macros@aux}[2]{%
   \expandafter\newcommand\csname #1@info\endcsname[1]{%
     \hardwrap{\arabic{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@info{#1}{\hw@tempa\MessageBreak This message occurred}%
+    \hw@info{#2}{\hw@tempa\MessageBreak This message occurred}%
   }%
   \expandafter\newcommand\csname #1@info@noline\endcsname[1]{%
     \hardwrap{\arabic{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@info{#1}{\hw@tempa\@gobble}%
+    \hw@info{#2}{\hw@tempa\@gobble}%
   }%
   \expandafter\newcommand\csname #1@warning\endcsname[1]{%
     \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@warning{#1}{\hw@tempa\MessageBreak This warning occurred}%
+    \hw@warning{#2}{\hw@tempa\MessageBreak This warning occurred}%
   }%
   \expandafter\newcommand\csname #1@warning@noline\endcsname[1]{%
     \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@warning{#1}{\hw@tempa\@gobble}%
+    \hw@warning{#2}{\hw@tempa\@gobble}%
   }%
   \expandafter\newcommand\csname #1@error\endcsname[2]{%
     \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hardwrap{\arabic{hw@error@length}}{\xdef\hw@tempb}{\MessageBreak}{##2}%
-    \hw@error{#1}{\hw@tempa}{\hw@tempb}%
+    \hw@error{#2}{\hw@tempa}{\hw@tempb}%
   }%
 }%
 %    \end{macrocode}
