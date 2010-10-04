@@ -168,7 +168,7 @@ This work consists of the file  hardwrap.dtx
 %(foobar)                Aenean vel lectus. Nunc imperdiet justo nec
 %(foobar)                dolor; on input line 102.
 % \end{verbatim}
-% Compare this to without the wrapping:
+% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeing words together; e.g., `Vestibulum' broken between lines two and three
 % \begin{verbatim}
 %Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis dis
 % parturient montes, nascetur ridiculus mus. Ut pellentesque augue sed urna. Ves
@@ -177,7 +177,6 @@ This work consists of the file  hardwrap.dtx
 %Fusce blandit. Aliquam erat volutpat. Aliquam euismod. Aenean vel lectus. Nunc 
 %imperdiet justo nec dolor; on input line 110.
 % \end{verbatim}
-% Note that words are not kept together when breaking over lines; e.g., `Vestibulum' broken between lines two and three.
 %
 % \newpage
 % \part{Implementation of \textsf{\jobname}}
@@ -216,6 +215,7 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@blankspace}
+% (Will:) Something tells me there's a better way to do this\dots
 %    \begin{macrocode}
 \begingroup
   \def\1{}
@@ -268,6 +268,7 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@scanstop}
+% This is a `quark' from expl3; it will never be executed, else an infinite loop results.
 %    \begin{macrocode}
 \def\hw@scanstop{\hw@scanstop}
 %    \end{macrocode}
@@ -293,7 +294,6 @@ This work consists of the file  hardwrap.dtx
     \fi
     \let\next\@gobble % gobble \hw@scanstop
 %    \end{macrocode}
-% \end{macro}
 %
 %    \begin{macrocode}
   \else\ifx\let@token\hw@blankspace
@@ -321,6 +321,7 @@ This work consists of the file  hardwrap.dtx
   \next
 }
 %    \end{macrocode}
+% \end{macro}
 %
 % \begin{macro}{\hw@dochar}
 %    \begin{macrocode}
