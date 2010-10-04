@@ -155,6 +155,12 @@ This work consists of the file  hardwrap.dtx
 %\fi
 % This is the package implementation.
 %
+% \section{Required Packages}
+%    \begin{macrocode}
+\RequirePackage{ifthen}
+%    \end{macrocode}
+%
+%
 % \section{Counters and variables}
 %    \begin{macrocode}
 \newcount\maxlinecount
@@ -254,6 +260,123 @@ This work consists of the file  hardwrap.dtx
   \protected@edef\hw@currword{\hw@currword#1}%
   \hw@scan
 }
+%    \end{macrocode}
+%
+% \section{Utility Macros}
+%
+% A simple string-length macro.
+%
+%    \begin{macrocode}
+\def\hw@END{\hw@END}
+\def\hw@strlen#1{%
+ \number\numexpr\hw@Ncharscan#1\hw@END\relax
+}
+\def\hw@Ncharscan#1{%
+ \ifx#1\hw@END
+   \expandafter\@gobble
+ \else
+   \expandafter\@firstofone
+ \fi
+ {+1\hw@Ncharscan}%
+}
+%    \end{macrocode}
+%
+% Some code to detect \TeX's \textit{max\_print\_line} value.
+%    \begin{macrocode}
+\newcount\hw@maxprintline
+\ifnum\pdfshellescape>0
+  \hw@maxprintline=\pdfprimitive\input"|kpsewhich -var-value=max_print_line"\relax
+\else
+  \hw@maxprintline=79% default
+\fi
+%    \end{macrocode}
+%
+% \section{Wrapping Log Messages}
+%
+% A few counters that contain the line lengths of the different log message
+% types:
+%
+%    \begin{macrocode}
+\newcounter{hw@info@length}% info text
+\newcounter{hw@warning@length}% warning and error text
+\newcounter{hw@error@length}% extended error help text
+\newcounter{hw@pkgname@length}% length of package/class name
+%    \end{macrocode}
+%
+% A user-facing macros to generate the logging macros.
+% TODO: Rename these macros!
+%
+%    \begin{macrocode}
+\newcommand{\GeneratePackageMacros}[1]{%
+  \setcounter{hw@pkgname@length}{\hw@strlen{#1}}%
+  \setcounter{hw@info@length}{\the\hw@maxprintline}%
+  \addtocounter{hw@info@length}{-\value{hw@pkgname@length}}%
+  \addtocounter{hw@info@length}{-16}%
+  \setcounter{hw@warning@length}{\the\hw@maxprintline}%
+  \addtocounter{hw@warning@length}{-\value{hw@pkgname@length}}%
+  \addtocounter{hw@warning@length}{-19}%
+  \setcounter{hw@error@length}{\the\hw@maxprintline}%
+  \let\hw@info\PackageInfo
+  \let\hw@warning\PackageWarning
+  \let\hw@error\PackageError
+  \hw@generate@logging@macros{#1}%
+}
+\newcommand{\GenerateClassMacros}[1]{%
+  \setcounter{hw@pkgname@length}{\hw@strlen{#1}}%
+  \setcounter{hw@info@length}{\the\hw@maxprintline}%
+  \addtocounter{hw@info@length}{-\value{hw@pkgname@length}}%
+  \addtocounter{hw@info@length}{-14}%
+  \setcounter{hw@warning@length}{\the\hw@maxprintline}%
+  \addtocounter{hw@warning@length}{-\value{hw@pkgname@length}}%
+  \addtocounter{hw@warning@length}{-17}%
+  \setcounter{hw@error@length}{\the\hw@maxprintline}%
+  \let\hw@info\ClassInfo
+  \let\hw@warning\ClassWarning
+  \let\hw@error\ClassError
+  \hw@generate@logging@macros{#1}%
+}
+%    \end{macrocode}
+%
+% And now for the code that generates all the logging macros:
+%    \begin{macrocode}
+\newcommand{\hw@generate@logging@macros}[1]{%
+  \expandafter\newcommand\csname #1@info\endcsname[1]{%
+    \hardwrap{\arabic{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hw@info{#1}{\hw@tempa\MessageBreak This message occurred}%
+  }%
+  \expandafter\newcommand\csname #1@info@noline\endcsname[1]{%
+    \hardwrap{\arabic{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hw@info{#1}{\hw@tempa\@gobble}%
+  }%
+  \expandafter\newcommand\csname #1@warning\endcsname[1]{%
+    \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hw@warning{#1}{\hw@tempa\MessageBreak This warning occurred}%
+  }%
+  \expandafter\newcommand\csname #1@warning@noline\endcsname[1]{%
+    \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hw@warning{#1}{\hw@tempa\@gobble}%
+  }%
+  \expandafter\newcommand\csname #1@error\endcsname[2]{%
+    \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hardwrap{\arabic{hw@error@length}}{\xdef\hw@tempb}{\MessageBreak}{##2}%
+    \hw@error{#1}{\hw@tempa}{\hw@tempb}%
+  }%
+}%
+%    \end{macrocode}
+%
+% \section{Debugging}
+%
+% This code is only here for testing purposes.
+%
+%    \begin{macrocode}
+\AtEndDocument{%
+  \PackageInfo{hardwrap}{%
+    hw@pkgname@length = \arabic{hw@pkgname@length}\MessageBreak
+    hw@info@length = \arabic{hw@info@length}\MessageBreak
+    hw@warning@length = \arabic{hw@warning@length}\MessageBreak
+    hw@error@length = \arabic{hw@error@length}
+  }%
+}%
 %    \end{macrocode}
 %
 % Fin.
