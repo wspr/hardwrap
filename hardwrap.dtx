@@ -188,7 +188,7 @@ This work consists of the file  hardwrap.dtx
 % \section{Required Packages}
 % \begin{macro}{ifthen}
 %    \begin{macrocode}
-\RequirePackage{ifthen,ifmtarg,ifplatform}
+\RequirePackage{calc,ifmtarg,ifplatform}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -438,14 +438,11 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \newcommand{\GeneratePackageLogMacros}[2][]{%
   \setcounter{hw@pkgname@length}{\hw@strlen{#2}}%
-  \setcounter{hw@info@length}{\the\hw@maxprintline}%
-  \addtocounter{hw@info@length}{-\value{hw@pkgname@length}}%
-  \addtocounter{hw@info@length}{-16}%
-  \setcounter{hw@warning@length}{\the\hw@maxprintline}%
-  \addtocounter{hw@warning@length}{-\value{hw@pkgname@length}}%
-  \addtocounter{hw@warning@length}{-19}%
-  \setcounter{hw@error@length}{\the\hw@maxprintline}%
-  \addtocounter{hw@error@length}{-1}%
+  \setcounter{hw@info@length}
+    {\the\hw@maxprintline-\value{hw@pkgname@length}-16}%
+  \setcounter{hw@warning@length}
+    {\the\hw@maxprintline-\value{hw@pkgname@length}-19}%
+  \setcounter{hw@error@length}{\the\hw@maxprintline-1}%
   \let\hw@info\PackageInfo
   \let\hw@warning\PackageWarning
   \let\hw@error\PackageError
@@ -456,14 +453,11 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \newcommand{\GenerateClassLogMacros}[2][]{%
   \setcounter{hw@pkgname@length}{\hw@strlen{#2}}%
-  \setcounter{hw@info@length}{\the\hw@maxprintline}%
-  \addtocounter{hw@info@length}{-\value{hw@pkgname@length}}%
-  \addtocounter{hw@info@length}{-14}%
-  \setcounter{hw@warning@length}{\the\hw@maxprintline}%
-  \addtocounter{hw@warning@length}{-\value{hw@pkgname@length}}%
-  \addtocounter{hw@warning@length}{-17}%
-  \setcounter{hw@error@length}{\the\hw@maxprintline}%
-  \addtocounter{hw@error@length}{-1}%
+  \setcounter{hw@info@length}
+    {\the\hw@maxprintline-\value{hw@pkgname@length}-14}%
+  \setcounter{hw@warning@length}
+    {\the\hw@maxprintline-\value{hw@pkgname@length}-17}%
+  \setcounter{hw@error@length}{\the\hw@maxprintline-1}%
   \let\hw@info\ClassInfo
   \let\hw@warning\ClassWarning
   \let\hw@error\ClassError
