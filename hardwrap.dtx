@@ -354,12 +354,16 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@maxprintline}
 % Some code to detect \TeX's \textit{max\_print\_line} value.
+% This doesn't work with MiKTeX (yet?), so we disable it under Windows always.
 %    \begin{macrocode}
 \newcount\hw@maxprintline
-\ifnum\pdfshellescape>0
-  \hw@maxprintline=\pdfprimitive\input"|kpsewhich -var-value=max_print_line"\relax
-\else
-  \hw@maxprintline=79% default
+\ifwindows\else
+  \ifnum\pdfshellescape>0\relax
+    \hw@maxprintline=\@@input"|kpsewhich -var-value=max_print_line"\relax
+  \fi
+\fi
+\ifnum\hw@maxprintline=0\relax % default
+  \hw@maxprintline=79\relax % default
 \fi
 %    \end{macrocode}
 % \end{macro}
