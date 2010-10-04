@@ -194,14 +194,8 @@ This work consists of the file  hardwrap.dtx
 %
 %
 % \section{Counters and variables}
-% \begin{macro}{\maxlinecount}
 % \begin{macro}{\hw@charcount}
 % \begin{macro}{\hw@wordcount}
-%    \begin{macrocode}
-\newcount\maxlinecount
-\maxlinecount=79\relax
-%    \end{macrocode}
-%
 %    \begin{macrocode}
 \newcount\hw@charcount
 \hw@charcount=-1\relax
@@ -210,7 +204,6 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \newcount\hw@wordcount
 %    \end{macrocode}
-% \end{macro}
 % \end{macro}
 % \end{macro}
 %
@@ -248,7 +241,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \newcommand\hardwrap[4]{%
   \begingroup
-    \maxlinecount=#1\relax
+    \hw@maxprintline=#1\relax
     \edef\@tempa{#4}%
     \edef\@tempa{\detokenize\expandafter{\@tempa}}%
     \expandafter\hw@scan\@tempa\hw@scanstop
@@ -283,7 +276,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
   \ifx\let@token\hw@scanstop\relax
     \ifnum\numexpr
-        (\hw@charcount+\hw@wordcount+1)\relax<\maxlinecount\relax
+        (\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
       \protected@edef\hw@wrappedtext{%
         \hw@currtext\hw@currline\space\hw@currword
       }%
@@ -479,24 +472,24 @@ This work consists of the file  hardwrap.dtx
 }
 \newcommand{\hw@generate@logging@macros@aux}[2]{%
   \expandafter\newcommand\csname #1@info\endcsname[1]{%
-    \hardwrap{\arabic{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@info{#2}{\hw@tempa\MessageBreak This message occurred}%
   }%
   \expandafter\newcommand\csname #1@info@noline\endcsname[1]{%
-    \hardwrap{\arabic{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@info{#2}{\hw@tempa\@gobble}%
   }%
   \expandafter\newcommand\csname #1@warning\endcsname[1]{%
-    \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@warning{#2}{\hw@tempa\MessageBreak This warning occurred}%
   }%
   \expandafter\newcommand\csname #1@warning@noline\endcsname[1]{%
-    \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@warning{#2}{\hw@tempa\@gobble}%
   }%
   \expandafter\newcommand\csname #1@error\endcsname[2]{%
-    \hardwrap{\arabic{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hardwrap{\arabic{hw@error@length}}{\xdef\hw@tempb}{\MessageBreak}{##2}%
+    \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \hardwrap{\value{hw@error@length}}{\xdef\hw@tempb}{\MessageBreak}{##2}%
     \hw@error{#2}{\hw@tempa}{\hw@tempb}%
   }%
 }%
