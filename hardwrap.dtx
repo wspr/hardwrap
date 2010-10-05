@@ -255,6 +255,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \protected\def\hw@space{ }
 \def\hw@expanding@space{ }
+\let\hw@kernel@space\space
 %    \end{macrocode}
 % \end{macro}
 %
@@ -270,6 +271,7 @@ This work consists of the file  hardwrap.dtx
     \edef\@tempa{#4}%
     \expandafter\hw@scan\@tempa\hw@scanstop
     \def\hw@newline{#3}
+    \let\space\hw@kernel@space
     #2{\hw@wrappedtext}
   \endgroup
 }
