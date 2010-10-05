@@ -310,7 +310,11 @@ This work consists of the file  hardwrap.dtx
   \ifx\let@token\hw@scanstop\relax
     \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
       \protected@edef\hw@wrappedtext{%
-        \hw@currtext\hw@currline\space\hw@currword
+        \hw@currtext
+        \ifx\hw@currline\@empty\else
+          \hw@currline\space
+        \fi
+        \hw@currword
       }%
     \else
       \protected@edef\hw@wrappedtext{%
