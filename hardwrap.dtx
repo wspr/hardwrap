@@ -72,6 +72,14 @@ This work consists of the file  hardwrap.dtx
 % \errorcontextlines=999
 % \makeatletter
 %
+% ^^A TESTING:
+% \GeneratePackageLogMacros{hardwrap}
+% \hardwrap@warning{Terminal spaces used to cause an infinite loop! No more }
+% \hardwrap@warning{\space Testing\space\space\space spaces.\space}
+% \hardwrap@warning{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
+%
+% ^^A CONTINUE:
+%
 % \GetFileInfo{\jobname.dtx}
 %
 % \title{The \pkg{\jobname} package}
@@ -293,25 +301,11 @@ This work consists of the file  hardwrap.dtx
 \def\hw@process{%
 %    \end{macrocode}
 % If we encounter the \cs{hw@scanstop} token, then we've hit the end of the
-% string.  Add the word to the current line if it fits, otherwise insert a line
-% break and put the word on its own line.  Swallow the stop token and stop
-% processing.
+% string. Swallow the stop token and stop processing.
 %    \begin{macrocode}
   \ifx\let@token\hw@scanstop\relax
-    \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
-      \protected@edef\hw@wrappedtext{%
-        \hw@currtext
-        \ifx\hw@currline\@empty\else
-          \hw@currline\space
-        \fi
-        \hw@currword
-      }%
-    \else
-      \protected@edef\hw@wrappedtext{%
-        \hw@currtext\hw@currline\hw@newline\hw@currword
-      }%
-    \fi
-    \let\next\@gobble % gobble \hw@scanstop
+    \hw@process@end
+    \let\next\@gobble
 %    \end{macrocode}
 % If we find a space, add the word to the current line if it fits, otherwise
 % insert a line break and put the word on its own line.  Continue reading tokens.
@@ -349,11 +343,40 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@dochar}
-% The \cs{hw@dochar} macro just appends a token (non-space and non-stop token) to the current word.
+% After a letter, the \cs{hw@dochar} macro just appends a token (non-space and non-stop token) to the current word.
+% After a space token, however, the following argument could possibly be \cs{hw@scanstop}, so we need to special-case this branch. I have a feeling that a `gobble-space' function is possible which would make this all a bit more elegant but this works for now.
 %    \begin{macrocode}
 \def\hw@dochar#1{%
-  \protected@edef\hw@currword{\hw@currword#1}%
-  \hw@scan
+  \def\@tempa{#1}%
+  \ifx\@tempa\hw@scanstop
+    \hw@process@end
+  \else
+    \protected@edef\hw@currword{\hw@currword#1}%
+    \expandafter\hw@scan
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\hw@process@end}
+% The final stage of processing the text. We've just come to the end of the final
+% word on the final line: add the word to the current line if it fits, otherwise insert a line
+% break and put the word on its own line.
+%    \begin{macrocode}
+\def\hw@process@end{%
+    \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
+      \protected@edef\hw@wrappedtext{%
+        \hw@currtext
+        \ifx\hw@currline\@empty\else
+          \hw@currline\space
+        \fi
+        \hw@currword
+      }%
+    \else
+      \protected@edef\hw@wrappedtext{%
+        \hw@currtext\hw@currline\hw@newline\hw@currword
+      }%
+    \fi
 }
 %    \end{macrocode}
 % \end{macro}
@@ -537,13 +560,6 @@ This work consists of the file  hardwrap.dtx
 }%
 %    \end{macrocode}
 % \end{macro}
-%
-% ^^A TESTING:
-% \makeatletter
-% \GeneratePackageLogMacros{hardwrap}
-% \hardwrap@warning{\space Testing\space\space\space spaces.\space}
-% \hardwrap@warning{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
-% \makeatother
 %
 % Fin.
 %
