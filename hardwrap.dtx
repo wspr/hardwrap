@@ -219,16 +219,6 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 % \end{macro}
 %
-% \begin{macro}{\hw@blankspace}
-% (Will:) Something tells me there's a better way to do this\dots
-%    \begin{macrocode}
-\begingroup
-  \def\1{}
-  \global\futurelet\hw@blankspace\1 % space
-\endgroup
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{macro}{\hw@currtext}
 % \begin{macro}{\hw@currline}
 % \begin{macro}{\hw@currword}
@@ -327,7 +317,7 @@ This work consists of the file  hardwrap.dtx
 % insert a line break and put the word on its own line.  Continue reading tokens.
 %    \begin{macrocode}
   \else
-    \ifx\let@token\hw@blankspace
+    \ifx\let@token\@sptoken
       \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
         \advance\hw@charcount by \hw@wordcount
         \ifx\hw@currline\@empty
