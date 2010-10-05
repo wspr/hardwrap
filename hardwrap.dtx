@@ -266,14 +266,24 @@ This work consists of the file  hardwrap.dtx
 \newcommand\@hardwrap[4]{%
   \begingroup
     \hw@maxprintline=#1\relax
-    \let\space\hw@space
-    \let\ \hw@space
+    \let\space\hw@protected@space
+    \hw@hook
     \edef\@tempa{#4}%
     \expandafter\hw@scan\@tempa\hw@scanstop
     \def\hw@newline{#3}
     \let\space\hw@kernel@space
     #2{\hw@wrappedtext}
   \endgroup
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\hw@hook}
+% This is the command to use if you want to `special-case' some meanings to be more appropriate inside message text.
+%    \begin{macrocode}
+\def\hw@hook{%
+    \let \  \hw@protected@space
+    \let \\ \hw@newline
 }
 %    \end{macrocode}
 % \end{macro}
