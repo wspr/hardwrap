@@ -73,10 +73,10 @@ This work consists of the file  hardwrap.dtx
 % \makeatletter
 %
 % ^^A TESTING:
-% \GeneratePackageLogMacros{hardwrap}
-% \hardwrap@warning{Terminal spaces used to cause an infinite loop! No more }
-% \hardwrap@warning{\space Testing\space\space\space spaces.\space}
-% \hardwrap@warning{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
+% \GeneratePackageLogMacros[HW]{hardwrap}
+% \HW@warning{Terminal spaces used to cause an infinite loop! No more }
+% \HW@warning{\space Testing\space\space\space spaces.\space}
+% \HW@warning{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
 %
 % ^^A CONTINUE:
 %
@@ -97,7 +97,7 @@ This work consists of the file  hardwrap.dtx
 % \section{Wrapping text}
 %
 % \begin{quote}
-%   \cs{hardwrap}\marg{width}\marg{function}\marg{newline}\marg{text}
+%   \cs{@hardwrap}\marg{width}\marg{function}\marg{newline}\marg{text}
 % \end{quote}
 %
 % This command will wrap \meta{text} to a text block of \meta{width} characters
@@ -153,7 +153,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Examples}
 %
-% \hardwrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
+% \@hardwrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
 %   Sed feugiat. Cum sociis natoque penatibus et
 %   magnis dis parturient montes, nascetur ridiculus mus. Ut
 %   pellentesque augue sed urna. Vestibulum diam eros, fringilla et,
@@ -173,7 +173,7 @@ This work consists of the file  hardwrap.dtx
 %
 % The command
 % \begin{verbatim}
-% \hardwrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
+% \@hardwrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
 %   Sed feugiat. Cum sociis natoque...;}
 % \end{verbatim}
 % produces the following in the console output:
@@ -261,9 +261,9 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Main procedure}
 %
-% \begin{macro}{\hardwrap}
+% \begin{macro}{\@hardwrap}
 %    \begin{macrocode}
-\newcommand\hardwrap[4]{%
+\newcommand\@hardwrap[4]{%
   \begingroup
     \hw@maxprintline=#1\relax
     \let\space\hw@space
@@ -539,24 +539,24 @@ This work consists of the file  hardwrap.dtx
 }
 \newcommand{\hw@generate@logging@macros@aux}[2]{%
   \expandafter\newcommand\csname #1@info\endcsname[1]{%
-    \hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \@hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@info{#2}{\hw@tempa^^JThis message occurred}%
   }%
   \expandafter\newcommand\csname #1@info@noline\endcsname[1]{%
-    \hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \@hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@info{#2}{\hw@tempa\@gobble}%
   }%
   \expandafter\newcommand\csname #1@warning\endcsname[1]{%
-    \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \@hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@warning{#2}{\hw@tempa^^JThis warning occurred}%
   }%
   \expandafter\newcommand\csname #1@warning@noline\endcsname[1]{%
-    \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \@hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
     \hw@warning{#2}{\hw@tempa\@gobble}%
   }%
   \expandafter\newcommand\csname #1@error\endcsname[2]{%
-    \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hardwrap{\value{hw@error@length}}{\xdef\hw@tempb}{\MessageBreak}{##2}%
+    \@hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
+    \@hardwrap{\value{hw@error@length}}{\xdef\hw@tempb}{\MessageBreak}{##2}%
     \hw@error{#2}{\hw@tempa}{\hw@tempb}%
   }%
 }%
