@@ -525,7 +525,7 @@ This work consists of the file  hardwrap.dtx
 \newcommand{\hw@generate@logging@macros@aux}[2]{%
   \expandafter\newcommand\csname #1@info\endcsname[1]{%
     \hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@info{#2}{\hw@tempa\MessageBreak This message occurred}%
+    \hw@info{#2}{\hw@tempa^^JThis message occurred}%
   }%
   \expandafter\newcommand\csname #1@info@noline\endcsname[1]{%
     \hardwrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
@@ -533,7 +533,7 @@ This work consists of the file  hardwrap.dtx
   }%
   \expandafter\newcommand\csname #1@warning\endcsname[1]{%
     \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@warning{#2}{\hw@tempa\MessageBreak This warning occurred}%
+    \hw@warning{#2}{\hw@tempa^^JThis warning occurred}%
   }%
   \expandafter\newcommand\csname #1@warning@noline\endcsname[1]{%
     \hardwrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
