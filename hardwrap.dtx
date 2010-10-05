@@ -252,6 +252,14 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\hw@space}
+% This definition of `space' is design to be switched for a real space later on.
+%    \begin{macrocode}
+\protected\def\hw@space{ }
+\def\hw@expanding@space{ }
+%    \end{macrocode}
+% \end{macro}
+%
 % \section{Main procedure}
 %
 % \begin{macro}{\hardwrap}
@@ -259,8 +267,9 @@ This work consists of the file  hardwrap.dtx
 \newcommand\hardwrap[4]{%
   \begingroup
     \hw@maxprintline=#1\relax
+    \let\space\hw@space
+    \let\ \hw@space
     \edef\@tempa{#4}%
-    \edef\@tempa{\detokenize\expandafter{\@tempa}}%
     \expandafter\hw@scan\@tempa\hw@scanstop
     \def\hw@newline{#3}
     #2{\hw@wrappedtext}
@@ -321,7 +330,7 @@ This work consists of the file  hardwrap.dtx
           \protected@edef\hw@currline{\hw@currword}%
         \else
           \advance\hw@charcount by 1\relax % account for the space character
-          \protected@edef\hw@currline{\hw@currline\space\hw@currword}%
+          \protected@edef\hw@currline{\hw@currline\hw@expanding@space\hw@currword}%
         \fi
       \else
         \hw@charcount=\hw@wordcount\relax
@@ -538,7 +547,8 @@ This work consists of the file  hardwrap.dtx
 % ^^A TESTING:
 % \makeatletter
 % \GeneratePackageLogMacros{hardwrap}
-% \hardwrap@info{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
+% \hardwrap@warning{\space Testing\space\space\space spaces.\space}
+% \hardwrap@warning{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
 % \makeatother
 %
 % Fin.
