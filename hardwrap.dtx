@@ -424,12 +424,11 @@ This work consists of the file  hardwrap.dtx
 % \begin{macro}{\hw@strlen}
 % A simple string-length macro.
 %    \begin{macrocode}
-\def\hw@END{\hw@END}
 \def\hw@strlen#1{%
- \number\numexpr\hw@Ncharscan#1\hw@END\relax
+ \number\numexpr\hw@Ncharscan#1\hw@scanstop\relax
 }
 \def\hw@Ncharscan#1{%
- \ifx#1\hw@END
+ \ifx#1\hw@scanstop
    \expandafter\@gobble
  \else
    \expandafter\@firstofone
