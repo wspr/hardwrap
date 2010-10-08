@@ -55,7 +55,44 @@ This work consists of the file  hardwrap.dtx
 %
 %<*driver>
 \documentclass{ltxdoc}
-\usepackage{xcolor,hardwrap,lipsum,booktabs}
+\makeatletter
+\renewcommand\meta@font@select{\rmfamily\itshape}
+
+\usepackage{titlesec}
+\titleformat{\part}{\Large}{Part \thepart}{1em}{\scshape}
+\titleformat{\section}{\smallskip\color{niceblue}}{\S\thesection}{1em}{}
+
+\renewcommand\contentsname{}
+
+\usepackage{tocloft,varwidth}
+\setcounter{tocdepth}{1}
+\def\tocwidthA{0.45}
+\def\tocwidthB{0.45}
+\renewcommand\cftpartfont{\scshape}
+\renewcommand\cftsecfont{\small}
+\renewcommand\cftsecpagefont{\small}
+\renewcommand\cftpartpagefont{\normalsize}
+\setlength\cftbeforesecskip{0pt}
+\renewcommand\cftpartleader{}
+\renewcommand\cftsecleader{}
+\renewcommand\cftpartafterpnum{\cftparfillskip}
+\renewcommand\cftsecafterpnum{\cftparfillskip}
+
+\newcommand\pretoc{{%
+  \addtocontents{toc}{%
+    \protect\hfill\protect\begin{varwidth}[t]{\tocwidthA\linewidth}%
+  }%
+}}
+\newcommand\splittoc{%
+ {\addtocontents{toc}{\protect\end{varwidth}\protect\hfill}}%
+ {\addtocontents{toc}{\protect\begin{varwidth}[t]{\protect\tocwidthB\protect\linewidth}}}%
+}
+\newcommand\posttoc{{\addtocontents{toc}{\protect\end{varwidth}\protect\hfill\protect\null\protect\par}}}
+
+\usepackage{xcolor,hardwrap,lipsum,booktabs,fancyvrb,hypdoc}
+\fvset{gobble=2}
+\hypersetup{linktocpage,linkcolor=niceblue}
+
 \linespread{1.05}      % A bit more space between lines
 \frenchspacing         % Remove extra space after punctuation
 \definecolor{niceblue}{rgb}{0.1,0.3,0.9}
@@ -96,8 +133,10 @@ This work consists of the file  hardwrap.dtx
 % \end{abstract}
 %
 % \tableofcontents
+% \bigskip
 %
-% \newpage
+% \pretoc
+% \part{User documentation}
 % \section{Introduction}
 %
 % The \pkg{\jobname} package provides a macro for word-wrapping text.  In
@@ -108,11 +147,9 @@ This work consists of the file  hardwrap.dtx
 %
 % The main function provided by this package is the \cs{HardWrap} command,
 % which takes four arguments.
-%
 % \begin{quote}
 %   \cs{HardWrap} \marg{width} \marg{function} \marg{newline} \marg{text}
 % \end{quote}
-%
 % This command will wrap \meta{text} to a text block of \meta{width} characters
 % wide, inserting \meta{newline} at the end of each line and processing the
 % result with \meta{function}. The \meta{text} is fully expanded before being
@@ -135,19 +172,19 @@ This work consists of the file  hardwrap.dtx
 % These two commands will generate the following macros:
 %
 % \begin{quote}
-%   \cs{\meta{\rmfamily prefix}@info}\marg{info}\\
-%   \cs{\meta{\rmfamily prefix}@info@noline}\marg{info}\\
-%   \cs{\meta{\rmfamily prefix}@warning}\marg{warning}\\
-%   \cs{\meta{\rmfamily prefix}@warning@noline}\marg{warning}\\
-%   \cs{\meta{\rmfamily prefix}@error}\marg{error}\marg{help}
+%   \cs{\meta{prefix}@info}\marg{info}\\
+%   \cs{\meta{prefix}@info@noline}\marg{info}\\
+%   \cs{\meta{prefix}@warning}\marg{warning}\\
+%   \cs{\meta{prefix}@warning@noline}\marg{warning}\\
+%   \cs{\meta{prefix}@error}\marg{error}\marg{help}
 % \end{quote}
 %
 % For instance, calling \cs{GeneratePackageLogMacros}\earg{mypackage}
 % will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, etc.
 % The arguments for the generated macros are the same as the arguments for
 % \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, etc. Additionally, info messages may be printed with
-% \cs{\meta{\rmfamily prefix}@info@noline} in which \LaTeX's
-% ``\texttt{on line \meta{\rmfamily num}}'' suffix is suppressed.
+% \cs{\meta{prefix}@info@noline} in which \LaTeX's
+% ``\texttt{on line \meta{num}}'' suffix is suppressed.
 %
 % The \cs{GenerateClassLogMacros} command generates similar macros using
 % \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, etc.
@@ -160,8 +197,7 @@ This work consists of the file  hardwrap.dtx
 % \begin{quote}
 %   \cs{setmaxprintline}\marg{value}
 % \end{quote}
-%
-% The \cs{setmaxprintline} macro takes an integer value and uses it as the
+% This macro takes an integer value which is subsquently used as the
 % maximum line width allowed in the terminal output and log file. By default
 % this value is \texttt{79}.
 %
@@ -187,34 +223,58 @@ This work consists of the file  hardwrap.dtx
 %   Nunc imperdiet justo nec dolor;}
 %
 % The command
-% \begin{verbatim}
-% \HardWrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
+% \begin{Verbatim}
+% \HardWrap{50}{\PackageWarning{foobar}}{\MessageBreak}{%
 %   Sed feugiat. Cum sociis natoque...;}
-% \end{verbatim}
+% \end{Verbatim}
 % produces the following in the console output:
-% \begin{verbatim}
-%Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis
-%(foobar)                dis parturient montes, nascetur ridiculus mus. Ut
-%(foobar)                pellentesque augue sed urna. Vestibulum diam eros,
-%(foobar)                fringilla et, consectetuer eu, nonummy id, sapien.
-%(foobar)                Nullam at lectus. In sagittis ultrices mauris.
-%(foobar)                Curabitur malesuada erat sit amet massa. Fusce
-%(foobar)                blandit. Aliquam erat volutpat. Aliquam euismod.
-%(foobar)                Aenean vel lectus. Nunc imperdiet justo nec
-%(foobar)                dolor; on input line 102.
-% \end{verbatim}
-% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeing words together; e.g., `Vestibulum' broken between lines two and three
-% \begin{verbatim}
-%Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis dis
-% parturient montes, nascetur ridiculus mus. Ut pellentesque augue sed urna. Ves
-%tibulum diam eros, fringilla et, consectetuer eu, nonummy id, sapien. Nullam at
-% lectus. In sagittis ultrices mauris. Curabitur malesuada erat sit amet massa. 
-%Fusce blandit. Aliquam erat volutpat. Aliquam euismod. Aenean vel lectus. Nunc 
-%imperdiet justo nec dolor; on input line 110.
-% \end{verbatim}
+% \begin{Verbatim}[fontsize=\footnotesize]
+% Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis
+% (foobar)                dis parturient montes, nascetur ridiculus mus. Ut
+% (foobar)                pellentesque augue sed urna. Vestibulum diam eros,
+% (foobar)                fringilla et, consectetuer eu, nonummy id, sapien.
+% (foobar)                Nullam at lectus. In sagittis ultrices mauris.
+% (foobar)                Curabitur malesuada erat sit amet massa. Fusce
+% (foobar)                blandit. Aliquam erat volutpat. Aliquam euismod.
+% (foobar)                Aenean vel lectus. Nunc imperdiet justo nec
+% (foobar)                dolor; on input line 102.
+% \end{Verbatim}
+% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeping words together: (e.g., `Vestibulum' broken between lines two and three)
+% \begin{Verbatim}[fontsize=\footnotesize]
+% Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis dis
+%  parturient montes, nascetur ridiculus mus. Ut pellentesque augue sed urna. Ves
+% tibulum diam eros, fringilla et, consectetuer eu, nonummy id, sapien. Nullam at
+%  lectus. In sagittis ultrices mauris. Curabitur malesuada erat sit amet massa. 
+% Fusce blandit. Aliquam erat volutpat. Aliquam euismod. Aenean vel lectus. Nunc 
+% imperdiet justo nec dolor; on input line 110.
+% \end{Verbatim}
+%
+% The \cs{HardWrap} macro can also be useful when writing to an external file.
+% For example, one may write
+% \begin{Verbatim}
+% \newwrite\textfile
+% \immediate\openout\textfile=\jobname.txt\relax
+% \HardWrap{50}{\immediate\write\textfile}{^^J}{%
+%   Sed feugiat. Cum sociis natoque...;}
+% \closeout\textfile
+% \end{Verbatim}
+% to write the text to a file after being hardwrapped with carriage returns (\verb|^^J|) after each line.
+%
+% \newwrite\textfile
+% \immediate\openout\textfile=\jobname.txt\relax
+% \HardWrap{50}{\immediate\write\textfile}{^^J}{%
+%   Sed feugiat. Cum sociis natoque penatibus et
+%   magnis dis parturient montes, nascetur ridiculus mus. Ut
+%   pellentesque augue sed urna. Vestibulum diam eros, fringilla et,
+%   consectetuer eu, nonummy id, sapien. Nullam at lectus. In sagittis
+%   ultrices mauris. Curabitur malesuada erat sit amet massa. Fusce
+%   blandit. Aliquam erat volutpat.  Aliquam euismod. Aenean vel lectus.
+%   Nunc imperdiet justo nec dolor.}
+% \closeout\textfile
 %
 % \newpage
-% \part{Implementation of \textsf{\jobname}}
+% \splittoc
+% \part{Implementation}
 %\iffalse
 %<*package>
 %\fi
@@ -256,12 +316,12 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 % \end{macro}
 %
-% \begin{macro}{\hw@newline}
+% \begin{macro}{\hw@protected@newline}
 % This macro is called each time a line break is created.  It typically holds
 % \cs{MessageBreak} for log messages, but could be set to \cs{\char`\\} for typeset
 % text.
 %    \begin{macrocode}
-\protected\def\hw@newline{}
+\protected\def\hw@protected@newline{}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -296,7 +356,7 @@ This work consists of the file  hardwrap.dtx
     \hw@hook
     \edef\@tempa{#4}%
     \expandafter\hw@scan\@tempa\hw@scanstop
-    \def\hw@newline{#3}
+    \def\hw@protected@newline{#3}
     \let\space\hw@kernel@space
     #2{\hw@wrappedtext}
   \endgroup
@@ -309,7 +369,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \def\hw@hook{%
     \let \  \hw@protected@space
-    \let \\ \hw@newline
+    \let \\ \hw@protected@newline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -360,7 +420,7 @@ This work consists of the file  hardwrap.dtx
         \fi
       \else
         \hw@charcount=\hw@wordcount\relax
-        \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@newline}%
+        \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
         \let\hw@currline\hw@currword
       \fi
       \hw@wordcount=1\relax
@@ -412,7 +472,7 @@ This work consists of the file  hardwrap.dtx
       }%
     \else
       \protected@edef\hw@wrappedtext{%
-        \hw@currtext\hw@currline\hw@newline\hw@currword
+        \hw@currtext\hw@currline\hw@protected@newline\hw@currword
       }%
     \fi
 }
@@ -465,35 +525,37 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Wrapping Log Messages}
 %
+% \begin{samepage}
 % \LaTeX{} informational, warning, and error messages are printed in the
 % format:
-% \begin{quote}
+% \begin{center}
 %   \ttfamily
 %   \begin{tabular}{l@{\space}l}
 %     Package \meta{pkgname} Info: & This is an informational message.\\
 %     (\meta{pkgname})             & That spans multiple lines. The\\
-%     (\meta{pkgname})             & \string\MessageBreak macro is used to split\\
+%     (\meta{pkgname})             & \string\MessageBreak\space macro is used to split\\
 %     (\meta{pkgname})             & the text across lines.\\
 %     \leftarrowfill$A$\rightarrowfill & \leftarrowfill$B$\rightarrowfill\\
 %     \multicolumn{2}{c}{\leftarrowfill$\textrm{\textit{max\_print\_line}}$\rightarrowfill}
 %   \end{tabular}
-% \end{quote}
-%
+% \end{center}
+% \end{samepage}
 % The maximum line length ($\textit{max\_print\_line}$) is used by
 % \TeX{} for all log file and terminal output.  It defaults to 79 characters
 % but may be changed by editing the \texttt{texmf.cnf} file.
 %
 % The length of $A$ is the sum of three values:
 % \begin{enumerate}
-%   \item whether it's a class of package message: add 6 for class messages,
+%   \item whether it's a class or package message: add 6 for class messages,
 %   and 8 for package messages;
 %   \item the length of the package name;
 %   \item the type of message: information (add 7), warning (add 10), or error
-%   (add 10).
+%   (add~10).
 % \end{enumerate}
 %
 % The length of $B$ is the difference between $\textit{max\_print\_line}$ and
-% $A$.
+% $A$ plus one for the extra space between them.
+% Note that the length of $B$ for the warning and error text is the same.
 %
 % \begin{macro}{hw@info@length}
 % \begin{macro}{hw@warning@length}
@@ -502,8 +564,6 @@ This work consists of the file  hardwrap.dtx
 % We'll store these calculated values in counters so that we don't have to
 % recalculate them each time a message is generated.  (This is a time vs.
 % space trade-off.)
-%
-% Note that the length of $B$ for the warning and error text is the same.
 %
 % In addition to the above lengths, the \cs{PackageError} macro allows for
 % additional text to be displayed when the user requests it.  This text
@@ -604,6 +664,8 @@ This work consists of the file  hardwrap.dtx
 %\fi
 %
 % \Finale
+%
+% \posttoc
 %
 % \typeout{*************************************************************}
 % \typeout{*}
