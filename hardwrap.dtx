@@ -58,6 +58,12 @@ This work consists of the file  hardwrap.dtx
 \makeatletter
 \renewcommand\meta@font@select{\rmfamily\itshape}
 
+\usepackage[osf,sc]{mathpazo}
+\usepackage[scaled=0.85]{beramono}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[final]{microtype}
+
 \usepackage{titlesec}
 \titleformat{\part}{\Large}{Part \thepart}{1em}{\scshape}
 \titleformat{\section}{\smallskip\color{niceblue}}{\S\thesection}{1em}{}
@@ -129,7 +135,7 @@ This work consists of the file  hardwrap.dtx
 %   \noindent This package provides facilities for hard-wrapping text to a certain
 %   line width. The primary purpose is to make it easier for package authors to write
 %   informational messages for the console and log file;
-%   wrappers around \cs{PackageWarning} et~al., are provided for this.
+%   wrappers around \cs{PackageWarning} et~al.\ are provided for this.
 % \end{abstract}
 %
 % \tableofcontents
@@ -568,7 +574,7 @@ This work consists of the file  hardwrap.dtx
 % In addition to the above lengths, the \cs{PackageError} macro allows for
 % additional text to be displayed when the user requests it.  This text
 % doesn't have anything prepended to each line, so the length of this text is
-% the same as $\textit{max\_print\_line} - 1$.
+% the same as $\textit{max\_print\_line}$.
 %
 %    \begin{macrocode}
 \newcounter{hw@info@length}% info text
@@ -596,7 +602,7 @@ This work consists of the file  hardwrap.dtx
     {\the\hw@maxprintline-\value{hw@pkgname@length}-16}%
   \setcounter{hw@warning@length}
     {\the\hw@maxprintline-\value{hw@pkgname@length}-19}%
-  \setcounter{hw@error@length}{\the\hw@maxprintline-1}%
+  \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \let\hw@info\PackageInfo
   \let\hw@warning\PackageWarning
   \let\hw@error\PackageError
@@ -611,7 +617,7 @@ This work consists of the file  hardwrap.dtx
     {\the\hw@maxprintline-\value{hw@pkgname@length}-14}%
   \setcounter{hw@warning@length}
     {\the\hw@maxprintline-\value{hw@pkgname@length}-17}%
-  \setcounter{hw@error@length}{\the\hw@maxprintline-1}%
+  \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \let\hw@info\ClassInfo
   \let\hw@warning\ClassWarning
   \let\hw@error\ClassError
