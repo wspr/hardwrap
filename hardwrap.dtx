@@ -64,6 +64,77 @@ This work consists of the file  hardwrap.dtx
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage[final]{microtype}
+\linespread{1.1}
+\frenchspacing
+
+\usepackage{geometry}
+\geometry{b5paper}
+
+
+%%%%%
+% See http://groups.google.com.au/group/comp.text.tex/msg/7588fd83dd9ce0ea
+
+\usepackage{calc,framed}
+
+
+\newcommand*{\frametitle}[1]{%
+  \noindent\hspace{\dimexpr-\FrameSep-\FrameRule}\parbox{\linewidth}{\centering\strut#1}}%       centered
+
+\expandafter\newif\csname ifcontframe\endcsname
+
+\newcommand*{\Fr@meSetup}[2]{%
+  \fboxrule=\FrameRule \fboxsep=\FrameSep
+  \global\contframefalse
+  \def\Fr@meFirst{#2}%
+  \def\Fr@meCont{#1}%
+  \def\FrameCommand##1{%
+    \Title@Fr@me{\Fr@meCurrent}{##1}%
+    \global\let\Fr@meCurrent\Fr@meNext
+    \ifcontframe
+      \global\let\Fr@meNext\Fr@meCont
+    \fi
+    \global\contframetrue}%
+  \global\let\Fr@meCurrent\Fr@meFirst
+  \global\let\Fr@meNext\Fr@meFirst}
+
+\newcommand*{\FrameTitle}[1]{%
+  \nobreak \vskip -0.7\FrameSep
+    \rlap{\frametitle{#1}}\nobreak\nointerlineskip
+    \vskip 0.7\FrameSep}
+
+
+\newenvironment{framewithtitle}[2][\Fr@meFirst\hfil{\footnotesize({\itshape cont.})}]{%
+  \def\Title@Fr@me##1##2{%
+    \hspace{\dimexpr-\FrameRule-\FrameSep\relax}%
+    \fcolorbox{gray}{white}{%
+      \vbox{\FrameTitle{##1}\hbox{##2}}%
+    }%
+  }%
+  \Fr@meSetup{#1}{#2}%
+  \MakeFramed{%
+    \advance\hsize-\width
+    \FrameRestore}}%
+  {\global\contframefalse
+   \endMakeFramed}
+
+\protected\def\framelabel#1{\texttt{\color{niceblue}\footnotesize#1}}
+
+\def\macrotitle{}
+\renewenvironment{macro}[1]{%
+  \@for\@ii:={{},#1}\do{%
+  \ifx\macrotitle\@empty
+    \let\macrotitle\@nil
+  \else\ifx\macrotitle\@nil
+    \edef\macrotitle{\framelabel{\detokenize\expandafter{\@ii}}}%
+  \else
+    \edef\macrotitle{\macrotitle\hfil\framelabel{\detokenize\expandafter{\@ii}}}%
+  \fi\fi
+  }
+  \begin{framewithtitle}{\macrotitle}
+  \noindent\ignorespaces
+}{%
+  \end{framewithtitle}
+}
 
 \usepackage{titlesec}
 \titleformat{\part}{\Large}{Part \thepart}{1em}{\scshape}
@@ -100,8 +171,6 @@ This work consists of the file  hardwrap.dtx
 \fvset{gobble=2}
 \hypersetup{linktocpage,linkcolor=niceblue}
 
-\linespread{1.05}      % A bit more space between lines
-\frenchspacing         % Remove extra space after punctuation
 \definecolor{niceblue}{rgb}{0.1,0.3,0.9}
 \def\theCodelineNo{\textcolor{niceblue}{\sffamily\tiny\arabic{CodelineNo}}}
 \newcommand*\pkg[1]{\textsf{#1}}
@@ -294,8 +363,7 @@ This work consists of the file  hardwrap.dtx
 %
 %
 % \section{Counters and variables}
-% \begin{macro}{\hw@charcount}
-% \begin{macro}{\hw@wordcount}
+% \begin{macro}{\hw@charcount,\hw@wordcount}
 % The \cs{hw@charcount} count holds the number of characters on the current
 % line.  The \cs{hw@wordcount} count holds the number of characters in the current word.
 %    \begin{macrocode}
@@ -307,11 +375,8 @@ This work consists of the file  hardwrap.dtx
 \newcount\hw@wordcount
 %    \end{macrocode}
 % \end{macro}
-% \end{macro}
 %
-% \begin{macro}{\hw@currtext}
-% \begin{macro}{\hw@currline}
-% \begin{macro}{\hw@currword}
+% \begin{macro}{\hw@currtext,\hw@currline,\hw@currword}
 % We store the current word, current line, and current wrapped text in the
 % following macros:
 %    \begin{macrocode}
@@ -319,8 +384,6 @@ This work consists of the file  hardwrap.dtx
 \def\hw@currline{}
 \def\hw@currword{}
 %    \end{macrocode}
-% \end{macro}
-% \end{macro}
 % \end{macro}
 %
 % \begin{macro}{\hw@protected@newline}
@@ -332,17 +395,13 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\hw@protected@space}
-% \begin{macro}{\hw@expanding@space}
-% \begin{macro}{\hw@kernel@space}
+% \begin{macro}{\hw@protected@space,\hw@expanding@space,\hw@kernel@space}
 % The \cmd\hw@protected@space\ definition of `space' is designed to be switched for a real space later on using \cmd\hw@kernel@space. \cmd \hw@expanding@space\ is inserted into scratch variable as the `real' space char.
 %    \begin{macrocode}
 \protected\def\hw@protected@space{ }
 \def\hw@expanding@space{ }
 \let\hw@kernel@space\space
 %    \end{macrocode}
-% \end{macro}
-% \end{macro}
 % \end{macro}
 %
 % \section{Main procedure}
@@ -564,10 +623,7 @@ This work consists of the file  hardwrap.dtx
 % $A$ plus one for the extra space between them.
 % Note that the length of $B$ for the warning and error text is the same.
 %
-% \begin{macro}{hw@info@length}
-% \begin{macro}{hw@warning@length}
-% \begin{macro}{hw@error@length}
-% \begin{macro}{hw@pkgname@length}
+% \begin{macro}{hw@info@length,hw@warning@length,hw@error@length,hw@pkgname@length}
 % We'll store these calculated values in counters so that we don't have to
 % recalculate them each time a message is generated.  (This is a time vs.
 % space trade-off.)
@@ -584,12 +640,8 @@ This work consists of the file  hardwrap.dtx
 \newcounter{hw@pkgname@length}% length of package/class name
 %    \end{macrocode}
 % \end{macro}
-% \end{macro}
-% \end{macro}
-% \end{macro}
 %
-% \begin{macro}{\GeneratePackageLogMacros}
-% \begin{macro}{\GenerateClassLogMacros}
+% \begin{macro}{\GeneratePackageLogMacros,\GenerateClassLogMacros}
 % Shortcuts are provided for generating logging macros that automatically wrap
 % the text provided to them.  The \cs{GeneratePackageLogMacros} and
 % \cs{GenerateClassLogMacros} calculate the various lengths of $B$ and set the
@@ -626,16 +678,15 @@ This work consists of the file  hardwrap.dtx
 }
 %    \end{macrocode}
 % \end{macro}
-% \end{macro}
 %
 % \begin{macro}{\hw@generate@logging@macros}
 % And now for the code that generates all the logging macros:
 %    \begin{macrocode}
 \newcommand{\hw@generate@logging@macros}[2]{%
   \@ifmtarg{#1}{
-    \hw@generate@logging@macros@aux{#2}{#2}
+    \hw@generate@logging@macros@aux{#2}{#2}%
   }{
-    \hw@generate@logging@macros@aux{#1}{#2}
+    \hw@generate@logging@macros@aux{#1}{#2}%
   }
 }
 \newcommand{\hw@generate@logging@macros@aux}[2]{%
