@@ -145,7 +145,7 @@ This work consists of the file  hardwrap.dtx
 \usepackage{tocloft,varwidth}
 \setcounter{tocdepth}{1}
 \def\tocwidthA{0.45}
-\def\tocwidthB{0.45}
+\def\tocwidthB{0.5}
 \renewcommand\cftpartfont{\scshape}
 \renewcommand\cftsecfont{\small}
 \renewcommand\cftsecpagefont{\small}
@@ -155,17 +155,18 @@ This work consists of the file  hardwrap.dtx
 \renewcommand\cftsecleader{}
 \renewcommand\cftpartafterpnum{\cftparfillskip}
 \renewcommand\cftsecafterpnum{\cftparfillskip}
+\renewcommand\@cftmaketoctitle{\bigskip}
 
 \newcommand\pretoc{{%
   \addtocontents{toc}{%
-    \protect\hfill\protect\begin{varwidth}[t]{\tocwidthA\linewidth}%
+    \protect\noindent\protect\begin{varwidth}[t]{\tocwidthA\linewidth}%
   }%
 }}
 \newcommand\splittoc{%
  {\addtocontents{toc}{\protect\end{varwidth}\protect\hfill}}%
  {\addtocontents{toc}{\protect\begin{varwidth}[t]{\protect\tocwidthB\protect\linewidth}}}%
 }
-\newcommand\posttoc{{\addtocontents{toc}{\protect\end{varwidth}\protect\hfill\protect\null\protect\par}}}
+\newcommand\posttoc{{\addtocontents{toc}{\protect\end{varwidth}\protect\par}}}
 
 \usepackage{xcolor,hardwrap,lipsum,booktabs,fancyvrb,hypdoc}
 \fvset{gobble=2}
