@@ -268,7 +268,7 @@ This work consists of the file  hardwrap.dtx
 % The arguments for the generated macros are the same as the arguments for
 % \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, etc. Additionally, info messages may be printed with
 % \cs{\meta{prefix}@info@noline} in which \LaTeX's
-% `\texttt{on line \meta{num}}' suffix is suppressed.
+% `\texttt{on input line \meta{num}}' suffix is suppressed.
 %
 % The \cs{GenerateClassLogMacros} command generates similar macros using
 % \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, etc.
@@ -290,7 +290,7 @@ This work consists of the file  hardwrap.dtx
 % \begin{quote}
 %   \cs{setmaxprintline}\marg{value}
 % \end{quote}
-% This macro takes an integer value which is subsquently used as the
+% This macro takes an integer value which is subsequently used as the
 % maximum line width allowed in the terminal output and log file. By default
 % this value is \texttt{79}.
 %
@@ -351,7 +351,7 @@ This work consists of the file  hardwrap.dtx
 %   Sed feugiat. Cum sociis natoque...;}
 % \closeout\textfile
 % \end{Verbatim}
-% to write the text to a file after being hardwrapped with carriage returns (\verb|^^J|) after each line.
+% to write the text to a file after being hard-wrapped with carriage returns (\verb|^^J|) after each line.
 %
 % \newwrite\textfile
 % \immediate\openout\textfile=\jobname.txt\relax
@@ -587,7 +587,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@maxprintline}
 % Some code to detect \TeX's \textit{max\_print\_line} value.
-% This doesn't work with MiKTeX (yet?), so we disable it under Windows always.
+% This doesn't work with MiK\TeX{} (yet?), so we disable it under Windows always.
 %    \begin{macrocode}
 \newcount\hw@maxprintline
 \ifwindows\else
@@ -645,7 +645,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@suffix}
 % This string is used as a suffix to \LaTeX\ warnings and info messages
-% to push the automatic `on line $N$' next onto the next line.
+% to push the automatic `on input line \meta{num}' onto the next line.
 % This makes writing grammatically correct messages somewhat easier.
 %    \begin{macrocode}
 \newcommand\hw@suffix{^^JThis message occurred}
@@ -765,7 +765,7 @@ This work consists of the file  hardwrap.dtx
 % Here are our wrappers for \cs{PackageInfo}, et~al., which are
 % used above to generalise the code a little. Note that these macros are
 % \cs{protected}, which allows them to be used in an expanding context
-% without a preceeding \cs{noexpand}.
+% without a preceding \cs{noexpand}.
 %    \begin{macrocode}
 \protected\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
 \protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobbletwo}}
