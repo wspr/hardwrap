@@ -413,9 +413,18 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\hw@scanstop}
+% This is a `quark' from expl3 designed to delimit the scanning; it will never be executed, else an infinite loop results.
+%    \begin{macrocode}
+\def\hw@scanstop{\hw@scanstop}
+%    \end{macrocode}
+% \end{macro}
+%
+%
 % \section{Main procedure}
 %
 % \begin{macro}{\HardWrap}
+% Arguments:
 % \marg{function}
 % \marg{chars to wrap to}
 % \marg{setup}
@@ -441,29 +450,12 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\HardWrapSetup}
-% This is the command to use if you want to `special-case' some meanings to be more appropriate inside message text.
-%    \begin{macrocode}
-\def\HardWrapSetup{%
-    \let \  \hw@protected@space
-    \let \\ \hw@protected@newline
-}
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{macro}{\hw@scan}
 % Convenience wrapper for \cs{futurelet}.
 %    \begin{macrocode}
 \def\hw@scan{%
   \futurelet\let@token\hw@process
 }
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\hw@scanstop}
-% This is a `quark' from expl3 designed to delimit the scanning; it will never be executed, else an infinite loop results.
-%    \begin{macrocode}
-\def\hw@scanstop{\hw@scanstop}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -552,6 +544,16 @@ This work consists of the file  hardwrap.dtx
         \hw@currtext\hw@currline\hw@protected@newline\hw@currword
       }%
     \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\HardWrapSetup}
+% This is the command to use if you want to `special-case' some meanings to be more appropriate inside message text. It is used by default for argument \verb|#3| in \cs{HardWrap}.
+%    \begin{macrocode}
+\def\HardWrapSetup{%
+    \let \  \hw@protected@space
+    \let \\ \hw@protected@newline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -666,7 +668,6 @@ This work consists of the file  hardwrap.dtx
 % \cs{GenerateClassLogMacros} calculate the various lengths of $B$ and set the
 % counters appropriately.  Then \cs{hw@generate@logging@macros} is called to,
 % well, generate the logging macros.
-%
 %    \begin{macrocode}
 \newcommand{\GeneratePackageLogMacros}[2][]{%
   \setcounter{hw@info@length}
@@ -676,11 +677,6 @@ This work consists of the file  hardwrap.dtx
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{package}{#1}{#2}%
 }
-\protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
-\protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobble}}
-\protected\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
-\protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobble}}
-\protected\def\hw@package@error         #1#2{\PackageError}
 %    \end{macrocode}
 %
 %    \begin{macrocode}
@@ -692,11 +688,6 @@ This work consists of the file  hardwrap.dtx
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{class}{#1}{#2}%
 }
-\protected\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
-\protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobble}}
-\protected\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
-\protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobble}}
-\protected\def\hw@class@error         #1#2{\ClassError}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -763,6 +754,24 @@ This work consists of the file  hardwrap.dtx
     }%
   }%
 }
+%    \end{macrocode}
+% Finally, here are our wrappers for \cs{PackageInfo}, et~al., which are
+% used above to generalise the code a little. Note that these macros are
+% \cs{protected}, which allows them to be used in an expanding context
+% without a preceeding \cs{noexpand}.
+%    \begin{macrocode}
+\protected\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
+\protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobble}}
+\protected\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
+\protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobble}}
+\protected\def\hw@class@error         #1#2{\ClassError}
+%    \end{macrocode}
+%    \begin{macrocode}
+\protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
+\protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobble}}
+\protected\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
+\protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobble}}
+\protected\def\hw@package@error         #1#2{\PackageError}
 %    \end{macrocode}
 % \end{macro}
 %
