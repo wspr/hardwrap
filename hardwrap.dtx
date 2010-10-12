@@ -189,9 +189,14 @@ This work consists of the file  hardwrap.dtx
 % ^^A TESTING:
 % \GeneratePackageLogMacros[HW]{hardwrap}
 % \GenerateClassLogMacros[HWC]{hardwrap}
+% \HW@info{Testing}
+% \HW@info@noline{Testing}
+% \HW@warning{Testing}
+% \HW@warning@noline{Testing}
 % \HW@warning{Terminal spaces used to cause an infinite loop! No more }
 % \HW@warning{\space Testing\space\space\space spaces.\space}
 % \HW@warning{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
+% ^^A \HW@error{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}{}
 %
 % ^^A CONTINUE:
 %
@@ -224,7 +229,7 @@ This work consists of the file  hardwrap.dtx
 % \section{Wrapping text}
 %
 % The main function provided by this package is the \cs{HardWrap} command,
-% which takes four arguments.
+% which takes five arguments.
 % \begin{quote}
 %   \cs{HardWrap} \marg{function} \marg{width} \marg{setup code} \marg{newline} \marg{text}
 % \end{quote}
@@ -370,7 +375,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Required Packages}
 %    \begin{macrocode}
-\RequirePackage{calc,ifmtarg,ifplatform}
+\RequirePackage{ifplatform}
 %    \end{macrocode}
 %
 %
@@ -634,27 +639,9 @@ This work consists of the file  hardwrap.dtx
 %   \item the type of message: information (add 7), warning (add 10), or error
 %   (add~10).
 % \end{enumerate}
-%
 % The length of $B$ is the difference between $\textit{max\_print\_line}$ and
 % $A$ plus one for the extra space between them.
 % Note that the length of $B$ for the warning and error text is the same.
-%
-% \begin{macro}{hw@info@length,hw@warning@length,hw@error@length}
-% We'll store these calculated values in counters so that we don't have to
-% recalculate them each time a message is generated.  (This is a time vs.
-% space trade-off.)
-%
-% In addition to the above lengths, the \cs{PackageError} macro allows for
-% additional text to be displayed when the user requests it.  This text
-% doesn't have anything prepended to each line, so the length of this text is
-% the same as $\textit{max\_print\_line}$.
-%
-%    \begin{macrocode}
-\newcounter{hw@info@length}% info text
-\newcounter{hw@warning@length}% warning and error text
-\newcounter{hw@error@length}% extended error help text
-%    \end{macrocode}
-% \end{macro}
 %
 % \begin{macro}{\hw@suffix}
 % This string is used as a suffix to \LaTeX\ warnings and info messages
@@ -668,66 +655,73 @@ This work consists of the file  hardwrap.dtx
 % \begin{macro}{\GeneratePackageLogMacros,\GenerateClassLogMacros}
 % Shortcuts are provided for generating logging macros that automatically wrap
 % the text provided to them.  The \cs{GeneratePackageLogMacros} and
-% \cs{GenerateClassLogMacros} calculate the various lengths of $B$ and set the
-% counters appropriately.  Then \cs{hw@generate@logging@macros} is called to,
-% well, generate the logging macros.
+% \cs{GenerateClassLogMacros} calculate the various lengths of $B$
+% appropriately.
 %    \begin{macrocode}
 \newcommand{\GeneratePackageLogMacros}[2][]{%
-  \setcounter{hw@info@length}
-    {\the\hw@maxprintline-\hw@strlen{#2}-16}%
-  \setcounter{hw@warning@length}
-    {\the\hw@maxprintline-\hw@strlen{#2}-19}%
-  \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{package}{#1}{#2}%
+    {\hw@maxprintline-\hw@strlen{#2}-16}% info length
+    {\hw@maxprintline-\hw@strlen{#2}-19}% warning length
 }
 %    \end{macrocode}
 %
 %    \begin{macrocode}
 \newcommand{\GenerateClassLogMacros}[2][]{%
-  \setcounter{hw@info@length}
-    {\the\hw@maxprintline-\hw@strlen{#2}-14}%
-  \setcounter{hw@warning@length}
-    {\the\hw@maxprintline-\hw@strlen{#2}-17}%
-  \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{class}{#1}{#2}%
+    {\hw@maxprintline-\hw@strlen{#2}-14}% info length
+    {\hw@maxprintline-\hw@strlen{#2}-17}% warning length
 }
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\hw@generate@logging@macros}
-% And now for the code that generates all the logging macros:
+% And now for the code that generates all the logging macros. Arguments:
+% \begin{enumerate}\itemsep=0pt\parskip=0pt\parsep=0pt
+% \item \marg{`package' or `class'}
+% \item \marg{prefix}
+% \item \marg{package name}
+% \item \marg{info message length}
+% \item \marg{warning message length}
+% \end{enumerate}
+% The \meta{info\dots} and \meta{warning message length} values correspond to
+% the calculation of $B$ as described above.
+%
+% First of all, if the \meta{prefix} is not specified then fall back to the \meta{package name}:
 %    \begin{macrocode}
-\newcommand{\hw@generate@logging@macros}[3]{%
-  \@ifmtarg{#2}{%
-    \hw@generate@logging@macros@aux{#1}{#3}{#3}%
-  }{%
-    \hw@generate@logging@macros@aux{#1}{#2}{#3}%
-  }%
+\newcommand{\hw@generate@logging@macros}[5]{%
+  \def\@tempa{#2}\ifx\@tempa\@empty
+    \hw@generate@logging@macros@aux{#1}{#3}{#3}{#4}{#5}%
+  \else
+    \hw@generate@logging@macros@aux{#1}{#2}{#3}{#4}{#5}%
+  \fi
 }
 %    \end{macrocode}
-%
+% Finally, the main procedure. Info messages first:
 %    \begin{macrocode}
-\newcommand{\hw@generate@logging@macros@aux}[3]{%
+\newcommand{\hw@generate@logging@macros@aux}[5]{%
   \expandafter\edef\csname #2@info\endcsname##1{%
     \noexpand\HardWrap
       {\@nameuse{hw@#1@info}{#3}}
-      {\arabic{hw@info@length}}
+      {\number\numexpr#4\relax}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {##1}%
   }%
   \expandafter\edef\csname #2@info@noline\endcsname##1{%
     \noexpand\HardWrap
-      {\@nameuse{hw@#1@noline}{#3}}
-      {\arabic{hw@info@length}}
+      {\@nameuse{hw@#1@info@noline}{#3}}
+      {\number\numexpr#4\relax}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {##1}%
   }%
+%    \end{macrocode}
+% Now warnings:
+%    \begin{macrocode}
   \expandafter\edef\csname #2@warning\endcsname##1{%
     \noexpand\HardWrap
       {\@nameuse{hw@#1@warning}{#3}}
-      {\arabic{hw@warning@length}}
+      {\number\numexpr#5\relax}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {##1}%
@@ -735,21 +729,30 @@ This work consists of the file  hardwrap.dtx
   \expandafter\edef\csname #2@warning@noline\endcsname##1{%
     \noexpand\HardWrap
       {\@nameuse{hw@#1@warning@noline}{#3}}
-      {\arabic{hw@warning@length}}
+      {\number\numexpr#5\relax}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {##1}%
   }%
+%    \end{macrocode}
+% And finally errors.
+%
+% In addition to the \meta{info} and \meta{warning} lengths,
+% the \cs{PackageError} macro allows for
+% additional text to be displayed when the user requests it.  This text
+% doesn't have anything prepended to each line, so the length of this text is
+% the same as $\textit{max\_print\_line}$.
+%    \begin{macrocode}
   \expandafter\edef\csname #2@error\endcsname##1##2{%
     \noexpand\HardWrap
-      {\arabic{hw@warning@length}}
       {\xdef\noexpand\hw@tempa}
+      {\number\numexpr#5\relax}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {\MessageBreak ##1}%
     \noexpand\HardWrap
-      {\arabic{hw@error@length}}
       {\xdef\noexpand\hw@tempb}
+      {\the\hw@maxprintline}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {\MessageBreak ##2}%
