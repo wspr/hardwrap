@@ -268,6 +268,12 @@ This work consists of the file  hardwrap.dtx
 % The \cs{GenerateClassLogMacros} command generates similar macros using
 % \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, etc.
 %
+% These macros define \verb*|\ | and \verb|\\| locally inside these messages to
+% mean, respectively, \meta{space} and \meta{newline}.
+% These redefinitions are stored in the macro \cs{HardWrapSetup}, which may
+% be altered before executing \cs{Generate...LogMacros} to change the behaviour
+% of the generated commands.
+%
 % \section{Customizing the output}
 %
 % While \pkg{\jobname} goes to some effort to determine the appropriate line
@@ -670,11 +676,11 @@ This work consists of the file  hardwrap.dtx
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{package}{#1}{#2}%
 }
-\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
-\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobble}}
-\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
-\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobble}}
-\let\hw@package@error              \PackageError
+\protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
+\protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobble}}
+\protected\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
+\protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobble}}
+\protected\def\hw@package@error         #1#2{\PackageError}
 %    \end{macrocode}
 %
 %    \begin{macrocode}
@@ -686,11 +692,11 @@ This work consists of the file  hardwrap.dtx
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{class}{#1}{#2}%
 }
-\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
-\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobble}}
-\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
-\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobble}}
-\let\hw@class@error              \ClassError
+\protected\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
+\protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobble}}
+\protected\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
+\protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobble}}
+\protected\def\hw@class@error         #1#2{\ClassError}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -698,37 +704,65 @@ This work consists of the file  hardwrap.dtx
 % And now for the code that generates all the logging macros:
 %    \begin{macrocode}
 \newcommand{\hw@generate@logging@macros}[3]{%
-  \@ifmtarg{#2}{
+  \@ifmtarg{#2}{%
     \hw@generate@logging@macros@aux{#1}{#3}{#3}%
-  }{
+  }{%
     \hw@generate@logging@macros@aux{#1}{#2}{#3}%
-  }
+  }%
 }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \newcommand{\hw@generate@logging@macros@aux}[3]{%
-  \expandafter\newcommand\csname #2@info\endcsname[1]{%
-    \HardWrap{\@nameuse{hw@#1@info}{#3}}{\value{hw@info@length}}
-        {\HardWrapSetup}{\MessageBreak}{##1}%
+  \expandafter\edef\csname #2@info\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@info}{#3}}
+      {\arabic{hw@info@length}}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
   }%
-  \expandafter\newcommand\csname #2@info@noline\endcsname[1]{%
-    \HardWrap{\@nameuse{hw@#1@noline}{#3}}{\value{hw@info@length}}
-        {\HardWrapSetup}{\MessageBreak}{##1}%
+  \expandafter\edef\csname #2@info@noline\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@noline}{#3}}
+      {\arabic{hw@info@length}}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
   }%
-  \expandafter\newcommand\csname #2@warning\endcsname[1]{%
-    \HardWrap{\@nameuse{hw@#1@warning}{#3}}{\value{hw@warning@length}}
-        {\HardWrapSetup}{\MessageBreak}{##1}%
+  \expandafter\edef\csname #2@warning\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@warning}{#3}}
+      {\arabic{hw@warning@length}}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
   }%
-  \expandafter\newcommand\csname #2@warning@noline\endcsname[1]{%
-    \HardWrap{\@nameuse{hw@#1@warning@noline}{#3}}{\value{hw@warning@length}}
-        {\HardWrapSetup}{\MessageBreak}{##1}%
+  \expandafter\edef\csname #2@warning@noline\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@warning@noline}{#3}}
+      {\arabic{hw@warning@length}}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
   }%
-  \expandafter\newcommand\csname #2@error\endcsname[2]{%
-    \HardWrap{\def\hw@tempa}{\value{hw@warning@length}}
-        {\HardWrapSetup}{\MessageBreak}{##1}%
-    \HardWrap{\def\hw@tempb}{\value{hw@error@length}}
-        {\HardWrapSetup}{\MessageBreak}{##2}%
-    \@nameuse{hw@#1@error}{#2}{\hw@tempa}{\hw@tempb}%
+  \expandafter\edef\csname #2@error\endcsname##1##2{%
+    \noexpand\HardWrap
+      {\def\noexpand\@tempa}
+      {\arabic{hw@warning@length}}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
+    \noexpand\HardWrap
+      {\def\noexpand\@tempb}
+      {\arabic{hw@error@length}}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}{##2}%
+    \unexpanded{%
+      \@nameuse{hw@#1@error}{#2}{\@tempa}{\@tempb}%
+    }%
   }%
-}%
+}
 %    \end{macrocode}
 % \end{macro}
 %
