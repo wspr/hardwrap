@@ -268,6 +268,9 @@ This work consists of the file  hardwrap.dtx
 % The \cs{GenerateClassLogMacros} command generates similar macros using
 % \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, etc.
 %
+% Note that no punctuation is added after messages, unlike standard \LaTeX.
+% You are free to punctuate your messages as you wish.
+%
 % These macros define \verb*|\ | and \verb|\\| locally inside these messages to
 % mean, respectively, \meta{space} and \meta{newline}.
 % These redefinitions are stored in the macro \cs{HardWrapSetup}, which may
@@ -762,17 +765,17 @@ This work consists of the file  hardwrap.dtx
 % without a preceeding \cs{noexpand}.
 %    \begin{macrocode}
 \protected\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
-\protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobble}}
+\protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobbletwo}}
 \protected\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
-\protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobble}}
 \protected\def\hw@class@error         #1#2{\ClassError}
+\protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobbletwo}}
 %    \end{macrocode}
 %    \begin{macrocode}
 \protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
-\protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobble}}
+\protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobbletwo}}
 \protected\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
-\protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobble}}
 \protected\def\hw@package@error         #1#2{\PackageError}
+\protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobbletwo}}
 %    \end{macrocode}
 % \end{macro}
 %
