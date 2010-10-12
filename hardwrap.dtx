@@ -628,7 +628,7 @@ This work consists of the file  hardwrap.dtx
 % $A$ plus one for the extra space between them.
 % Note that the length of $B$ for the warning and error text is the same.
 %
-% \begin{macro}{hw@info@length,hw@warning@length,hw@error@length,hw@pkgname@length}
+% \begin{macro}{hw@info@length,hw@warning@length,hw@error@length}
 % We'll store these calculated values in counters so that we don't have to
 % recalculate them each time a message is generated.  (This is a time vs.
 % space trade-off.)
@@ -642,11 +642,13 @@ This work consists of the file  hardwrap.dtx
 \newcounter{hw@info@length}% info text
 \newcounter{hw@warning@length}% warning and error text
 \newcounter{hw@error@length}% extended error help text
-\newcounter{hw@pkgname@length}% length of package/class name
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\hw@suffix}
+% This string is used as a suffix to \LaTeX\ warnings and info messages
+% to push the automatic `on page $N$' next onto the next line.
+% This makes writing grammatically correct messages somewhat easier.
 %    \begin{macrocode}
 \newcommand\hw@suffix{^^JThis message occurred}
 %    \end{macrocode}
@@ -661,11 +663,10 @@ This work consists of the file  hardwrap.dtx
 %
 %    \begin{macrocode}
 \newcommand{\GeneratePackageLogMacros}[2][]{%
-  \setcounter{hw@pkgname@length}{\hw@strlen{#2}}%
   \setcounter{hw@info@length}
-    {\the\hw@maxprintline-\value{hw@pkgname@length}-16}%
+    {\the\hw@maxprintline-\hw@strlen{#2}-16}%
   \setcounter{hw@warning@length}
-    {\the\hw@maxprintline-\value{hw@pkgname@length}-19}%
+    {\the\hw@maxprintline-\hw@strlen{#2}-19}%
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{package}{#1}{#2}%
 }
@@ -678,11 +679,10 @@ This work consists of the file  hardwrap.dtx
 %
 %    \begin{macrocode}
 \newcommand{\GenerateClassLogMacros}[2][]{%
-  \setcounter{hw@pkgname@length}{\hw@strlen{#2}}%
   \setcounter{hw@info@length}
-    {\the\hw@maxprintline-\value{hw@pkgname@length}-14}%
+    {\the\hw@maxprintline-\hw@strlen{#2}-14}%
   \setcounter{hw@warning@length}
-    {\the\hw@maxprintline-\value{hw@pkgname@length}-17}%
+    {\the\hw@maxprintline-\hw@strlen{#2}-17}%
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
   \hw@generate@logging@macros{class}{#1}{#2}%
 }
