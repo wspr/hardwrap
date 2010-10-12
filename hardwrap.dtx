@@ -226,12 +226,13 @@ This work consists of the file  hardwrap.dtx
 % The main function provided by this package is the \cs{HardWrap} command,
 % which takes four arguments.
 % \begin{quote}
-%   \cs{HardWrap} \marg{width} \marg{function} \marg{newline} \marg{text}
+%   \cs{HardWrap} \marg{function} \marg{width} \marg{setup code} \marg{newline} \marg{text}
 % \end{quote}
 % This command will wrap \meta{text} to a text block of \meta{width} characters
 % wide, inserting \meta{newline} at the end of each line and processing the
 % result with \meta{function}. The \meta{text} is fully expanded before being
-% hard-wrapped; you have been warned!
+% hard-wrapped; while doing so, the \meta{setup code} may be used to change
+% local definitions for commands such as \verb|\\|.
 %
 % Examples will be given in Section~\ref{examples}.
 %
@@ -282,7 +283,7 @@ This work consists of the file  hardwrap.dtx
 % \section{Examples}
 % \label{examples}
 %
-% \HardWrap{50}{\PackageWarning{foobar}}{\MessageBreak}{^^A
+% \HardWrap{\PackageWarning{foobar}}{50}{\HardWrapSetup}{\MessageBreak}{^^A
 %   Sed feugiat. Cum sociis natoque penatibus et
 %   magnis dis parturient montes, nascetur ridiculus mus. Ut
 %   pellentesque augue sed urna. Vestibulum diam eros, fringilla et,
@@ -302,7 +303,7 @@ This work consists of the file  hardwrap.dtx
 %
 % The command
 % \begin{Verbatim}
-% \HardWrap{50}{\PackageWarning{foobar}}{\MessageBreak}{%
+% \HardWrap{\PackageWarning{foobar}}{50}{\HardWrapSetup}{\MessageBreak}{%
 %   Sed feugiat. Cum sociis natoque...;}
 % \end{Verbatim}
 % produces the following in the console output:
@@ -332,7 +333,7 @@ This work consists of the file  hardwrap.dtx
 % \begin{Verbatim}
 % \newwrite\textfile
 % \immediate\openout\textfile=\jobname.txt\relax
-% \HardWrap{50}{\immediate\write\textfile}{^^J}{%
+% \HardWrap{\immediate\write\textfile}{50}{\HardWrapSetup}{^^J}{%
 %   Sed feugiat. Cum sociis natoque...;}
 % \closeout\textfile
 % \end{Verbatim}
@@ -340,7 +341,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \newwrite\textfile
 % \immediate\openout\textfile=\jobname.txt\relax
-% \HardWrap{50}{\immediate\write\textfile}{^^J}{%
+% \HardWrap{\immediate\write\textfile}{50}{\HardWrapSetup}{^^J}{%
 %   Sed feugiat. Cum sociis natoque penatibus et
 %   magnis dis parturient montes, nascetur ridiculus mus. Ut
 %   pellentesque augue sed urna. Vestibulum diam eros, fringilla et,
@@ -409,33 +410,35 @@ This work consists of the file  hardwrap.dtx
 % \section{Main procedure}
 %
 % \begin{macro}{\HardWrap}
-% \marg{chars}
 % \marg{function}
+% \marg{chars to wrap to}
+% \marg{setup}
 % \marg{newline}
 % \marg{text}
 %
 % This is the macro that does everything.
 % Note that the \cs{space} is first made `protected' and then restored again.
 %    \begin{macrocode}
-\newcommand\HardWrap[4]{%
+\newcommand\HardWrap[5]{%
   \begingroup
-    \hw@maxprintline=#1\relax
+    \hw@maxprintline=#2\relax
     \let\space\hw@protected@space
-    \hw@hook
-    \edef\@tempa{#4}%
+    #3
+    \edef\@tempa{#5}%
     \expandafter\hw@scan\@tempa\hw@scanstop
-    \def\hw@protected@newline{#3}
+    \def\hw@protected@newline{#4}
     \let\space\hw@kernel@space
-    #2{\hw@wrappedtext}
+    \@temptokena={#1}%
+    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}
   \endgroup
 }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\hw@hook}
+% \begin{macro}{\HardWrapSetup}
 % This is the command to use if you want to `special-case' some meanings to be more appropriate inside message text.
 %    \begin{macrocode}
-\def\hw@hook{%
+\def\HardWrapSetup{%
     \let \  \hw@protected@space
     \let \\ \hw@protected@newline
 }
@@ -478,7 +481,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
   \else
     \ifx\let@token\@sptoken
-      \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
+      \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline
         \advance\hw@charcount by \hw@wordcount
         \ifx\hw@currline\@empty
           \protected@edef\hw@currline{\hw@currword}%
@@ -643,6 +646,12 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\hw@suffix}
+%    \begin{macrocode}
+\newcommand\hw@suffix{^^JThis message occurred}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\GeneratePackageLogMacros,\GenerateClassLogMacros}
 % Shortcuts are provided for generating logging macros that automatically wrap
 % the text provided to them.  The \cs{GeneratePackageLogMacros} and
@@ -658,11 +667,13 @@ This work consists of the file  hardwrap.dtx
   \setcounter{hw@warning@length}
     {\the\hw@maxprintline-\value{hw@pkgname@length}-19}%
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
-  \let\hw@info\PackageInfo
-  \let\hw@warning\PackageWarning
-  \let\hw@error\PackageError
-  \hw@generate@logging@macros{#1}{#2}%
+  \hw@generate@logging@macros{package}{#1}{#2}%
 }
+\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
+\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobble}}
+\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
+\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobble}}
+\let\hw@package@error              \PackageError
 %    \end{macrocode}
 %
 %    \begin{macrocode}
@@ -673,45 +684,49 @@ This work consists of the file  hardwrap.dtx
   \setcounter{hw@warning@length}
     {\the\hw@maxprintline-\value{hw@pkgname@length}-17}%
   \setcounter{hw@error@length}{\the\hw@maxprintline}%
-  \let\hw@info\ClassInfo
-  \let\hw@warning\ClassWarning
-  \let\hw@error\ClassError
-  \hw@generate@logging@macros{#1}{#2}%
+  \hw@generate@logging@macros{class}{#1}{#2}%
 }
+\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
+\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobble}}
+\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
+\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobble}}
+\let\hw@class@error              \ClassError
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\hw@generate@logging@macros}
 % And now for the code that generates all the logging macros:
 %    \begin{macrocode}
-\newcommand{\hw@generate@logging@macros}[2]{%
-  \@ifmtarg{#1}{
-    \hw@generate@logging@macros@aux{#2}{#2}%
+\newcommand{\hw@generate@logging@macros}[3]{%
+  \@ifmtarg{#2}{
+    \hw@generate@logging@macros@aux{#1}{#3}{#3}%
   }{
-    \hw@generate@logging@macros@aux{#1}{#2}%
+    \hw@generate@logging@macros@aux{#1}{#2}{#3}%
   }
 }
-\newcommand{\hw@generate@logging@macros@aux}[2]{%
-  \expandafter\newcommand\csname #1@info\endcsname[1]{%
-    \HardWrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@info{#2}{\hw@tempa^^JThis message occurred}%
+\newcommand{\hw@generate@logging@macros@aux}[3]{%
+  \expandafter\newcommand\csname #2@info\endcsname[1]{%
+    \HardWrap{\@nameuse{hw@#1@info}{#3}}{\value{hw@info@length}}
+        {\HardWrapSetup}{\MessageBreak}{##1}%
   }%
-  \expandafter\newcommand\csname #1@info@noline\endcsname[1]{%
-    \HardWrap{\value{hw@info@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@info{#2}{\hw@tempa\@gobble}%
+  \expandafter\newcommand\csname #2@info@noline\endcsname[1]{%
+    \HardWrap{\@nameuse{hw@#1@noline}{#3}}{\value{hw@info@length}}
+        {\HardWrapSetup}{\MessageBreak}{##1}%
   }%
-  \expandafter\newcommand\csname #1@warning\endcsname[1]{%
-    \HardWrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@warning{#2}{\hw@tempa^^JThis warning occurred}%
+  \expandafter\newcommand\csname #2@warning\endcsname[1]{%
+    \HardWrap{\@nameuse{hw@#1@warning}{#3}}{\value{hw@warning@length}}
+        {\HardWrapSetup}{\MessageBreak}{##1}%
   }%
-  \expandafter\newcommand\csname #1@warning@noline\endcsname[1]{%
-    \HardWrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \hw@warning{#2}{\hw@tempa\@gobble}%
+  \expandafter\newcommand\csname #2@warning@noline\endcsname[1]{%
+    \HardWrap{\@nameuse{hw@#1@warning@noline}{#3}}{\value{hw@warning@length}}
+        {\HardWrapSetup}{\MessageBreak}{##1}%
   }%
-  \expandafter\newcommand\csname #1@error\endcsname[2]{%
-    \HardWrap{\value{hw@warning@length}}{\xdef\hw@tempa}{\MessageBreak}{##1}%
-    \HardWrap{\value{hw@error@length}}{\xdef\hw@tempb}{\MessageBreak}{##2}%
-    \hw@error{#2}{\hw@tempa}{\hw@tempb}%
+  \expandafter\newcommand\csname #2@error\endcsname[2]{%
+    \HardWrap{\def\hw@tempa}{\value{hw@warning@length}}
+        {\HardWrapSetup}{\MessageBreak}{##1}%
+    \HardWrap{\def\hw@tempb}{\value{hw@error@length}}
+        {\HardWrapSetup}{\MessageBreak}{##2}%
+    \@nameuse{hw@#1@error}{#2}{\hw@tempa}{\hw@tempb}%
   }%
 }%
 %    \end{macrocode}
