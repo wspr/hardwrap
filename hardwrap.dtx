@@ -743,12 +743,13 @@ This work consists of the file  hardwrap.dtx
       {\arabic{hw@warning@length}}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
-      {##1}%
+      {\MessageBreak ##1}%
     \noexpand\HardWrap
       {\def\noexpand\@tempb}
       {\arabic{hw@error@length}}
       {\unexpanded\expandafter{\HardWrapSetup}}
-      {\noexpand\MessageBreak}{##2}%
+      {\noexpand\MessageBreak}
+      {\MessageBreak ##2}%
     \unexpanded{%
       \@nameuse{hw@#1@error}{#2}{\@tempa}{\@tempb}%
     }%
