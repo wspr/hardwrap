@@ -742,24 +742,24 @@ This work consists of the file  hardwrap.dtx
   }%
   \expandafter\edef\csname #2@error\endcsname##1##2{%
     \noexpand\HardWrap
-      {\def\noexpand\@tempa}
       {\arabic{hw@warning@length}}
+      {\xdef\noexpand\hw@tempa}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {\MessageBreak ##1}%
     \noexpand\HardWrap
-      {\def\noexpand\@tempb}
       {\arabic{hw@error@length}}
+      {\xdef\noexpand\hw@tempb}
       {\unexpanded\expandafter{\HardWrapSetup}}
       {\noexpand\MessageBreak}
       {\MessageBreak ##2}%
     \unexpanded{%
-      \@nameuse{hw@#1@error}{#2}{\@tempa}{\@tempb}%
+      \@nameuse{hw@#1@error}{#3}{\hw@tempa}{\hw@tempb}%
     }%
   }%
 }
 %    \end{macrocode}
-% Finally, here are our wrappers for \cs{PackageInfo}, et~al., which are
+% Here are our wrappers for \cs{PackageInfo}, et~al., which are
 % used above to generalise the code a little. Note that these macros are
 % \cs{protected}, which allows them to be used in an expanding context
 % without a preceeding \cs{noexpand}.
@@ -767,15 +767,15 @@ This work consists of the file  hardwrap.dtx
 \protected\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
 \protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobbletwo}}
 \protected\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
-\protected\def\hw@class@error         #1#2{\ClassError}
 \protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobbletwo}}
+\protected\def\hw@class@error         #1#2{\ClassError  {#1}{#2}}
 %    \end{macrocode}
 %    \begin{macrocode}
 \protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
 \protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobbletwo}}
 \protected\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
-\protected\def\hw@package@error         #1#2{\PackageError}
 \protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobbletwo}}
+\protected\def\hw@package@error         #1#2{\PackageError  {#1}{#2}}
 %    \end{macrocode}
 % \end{macro}
 %
