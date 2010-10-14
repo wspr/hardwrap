@@ -36,14 +36,25 @@ clean:
 
 ###### NIGHTLY BUILDS ######
 
+UNAME_S := $(shell uname -s)
+
 # Mac OS X specific:
-GETPASSWORD := $(shell security 2>&1 >/dev/null find-internet-password -gs tlcontrib.metatex.org | cut -f 2 -d ' ')
-GETUSERNAME := $(shell security find-internet-password -s tlcontrib.metatex.org | grep "acct" | cut -f 4 -d \")
+ifeq ($(UNAME_S),Darwin)
+	GETPASSWORD := $(shell security 2>&1 >/dev/null find-internet-password -gs tlcontrib.metatex.org | cut -f 2 -d ' ')
+	GETUSERNAME := $(shell security find-internet-password -s tlcontrib.metatex.org | grep "acct" | cut -f 4 -d \")
+	MD5 = md5
+endif
+
+# Linux-specific
+ifeq ($(UNAME_S),Linux)
+	GETPASSWORD := ""
+	GETUSERNAME := ""
+	MD5 = md5sum
+endif
 
 BRANCH = tdsbuild
 
 TMP = /tmp
-MD5 = md5
 LOG =  $(TMP)/gitlog.tmp
 PASSWORD = $(GETPASSWORD)
 USERNAME = $(GETUSERNAME)
