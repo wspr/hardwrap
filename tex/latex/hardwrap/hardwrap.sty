@@ -1,0 +1,220 @@
+%%
+%% This is file `hardwrap.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% hardwrap.dtx  (with options: `package')
+%%   ____________________________
+%%   The HARDWRAP package
+%%   (C) 2010 Will Robertson
+%%   (C) 2010 Kevin Godby
+%%   License information appended
+%% 
+\ProvidesPackage{hardwrap}
+  [2010/10/02 v0.1 Hard wrap messages]
+\RequirePackage{ifplatform}
+\newcount\hw@charcount
+\hw@charcount=-1\relax
+\newcount\hw@wordcount
+\def\hw@currtext{}
+\def\hw@currline{}
+\def\hw@currword{}
+\protected\def\hw@protected@newline{}
+\protected\def\hw@protected@space{ }
+\def\hw@expanding@space{ }
+\let\hw@kernel@space\space
+\def\hw@scanstop{\hw@scanstop}
+\newcommand\HardWrap[5]{%
+  \begingroup
+    \hw@maxprintline=#2\relax
+    \let\space\hw@protected@space
+    #3
+    \edef\@tempa{#5}%
+    \expandafter\hw@scan\@tempa\hw@scanstop
+    \def\hw@protected@newline{#4}
+    \let\space\hw@kernel@space
+    \@temptokena={#1}%
+    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}
+  \endgroup
+}
+\def\hw@scan{%
+  \futurelet\let@token\hw@process
+}
+\def\hw@process{%
+  \ifx\let@token\hw@scanstop\relax
+    \hw@process@end
+    \let\next\@gobble
+  \else
+    \ifx\let@token\@sptoken
+      \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline
+        \advance\hw@charcount by \hw@wordcount
+        \ifx\hw@currline\@empty
+          \protected@edef\hw@currline{\hw@currword}%
+        \else
+          \advance\hw@charcount by 1\relax % account for the space character
+          \protected@edef\hw@currline{\hw@currline\hw@expanding@space\hw@currword}%
+        \fi
+      \else
+        \hw@charcount=\hw@wordcount\relax
+        \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
+        \let\hw@currline\hw@currword
+      \fi
+      \hw@wordcount=1\relax
+      \let\hw@currword\@empty
+      \let\next\hw@dochar
+    \else
+      \advance\hw@wordcount by 1\relax
+      \let\next\hw@dochar
+    \fi
+  \fi
+  \next
+}
+\def\hw@dochar#1{%
+  \def\@tempa{#1}%
+  \ifx\@tempa\hw@scanstop
+    \hw@process@end
+  \else
+    \protected@edef\hw@currword{\hw@currword#1}%
+    \expandafter\hw@scan
+  \fi
+}
+\def\hw@process@end{%
+    \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
+      \protected@edef\hw@wrappedtext{%
+        \hw@currtext
+        \ifx\hw@currline\@empty\else
+          \hw@currline\space
+        \fi
+        \hw@currword
+      }%
+    \else
+      \protected@edef\hw@wrappedtext{%
+        \hw@currtext\hw@currline\hw@protected@newline\hw@currword
+      }%
+    \fi
+}
+\def\HardWrapSetup{%
+    \let \  \hw@protected@space
+    \let \\ \hw@protected@newline
+}
+\def\hw@strlen#1{%
+ \number\numexpr\hw@Ncharscan#1\hw@scanstop\relax
+}
+\def\hw@Ncharscan#1{%
+ \ifx#1\hw@scanstop
+   \expandafter\@gobble
+ \else
+   \expandafter\@firstofone
+ \fi
+ {+1\hw@Ncharscan}%
+}
+\newcount\hw@maxprintline
+\ifwindows\else
+  \ifnum\pdfshellescape>0\relax
+    \hw@maxprintline=\@@input"|kpsewhich -var-value=max_print_line"\relax
+  \fi
+\fi
+\ifnum\hw@maxprintline=0\relax % default
+  \hw@maxprintline=79\relax % default
+\fi
+\newcommand*{\setmaxprintline}[1]{%
+  \hw@maxprintline=#1\relax
+}
+\newcommand\hw@suffix{^^JThis message occurred}
+\newcommand{\GeneratePackageLogMacros}[2][]{%
+  \hw@generate@logging@macros{package}{#1}{#2}%
+    {\hw@maxprintline-\hw@strlen{#2}-16}% info length
+    {\hw@maxprintline-\hw@strlen{#2}-19}% warning length
+}
+\newcommand{\GenerateClassLogMacros}[2][]{%
+  \hw@generate@logging@macros{class}{#1}{#2}%
+    {\hw@maxprintline-\hw@strlen{#2}-14}% info length
+    {\hw@maxprintline-\hw@strlen{#2}-17}% warning length
+}
+\newcommand{\hw@generate@logging@macros}[5]{%
+  \def\@tempa{#2}\ifx\@tempa\@empty
+    \hw@generate@logging@macros@aux{#1}{#3}{#3}{#4}{#5}%
+  \else
+    \hw@generate@logging@macros@aux{#1}{#2}{#3}{#4}{#5}%
+  \fi
+}
+\newcommand{\hw@generate@logging@macros@aux}[5]{%
+  \expandafter\edef\csname #2@info\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@info}{#3}}
+      {\number\numexpr#4\relax}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
+  }%
+  \expandafter\edef\csname #2@info@noline\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@info@noline}{#3}}
+      {\number\numexpr#4\relax}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
+  }%
+  \expandafter\edef\csname #2@warning\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@warning}{#3}}
+      {\number\numexpr#5\relax}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
+  }%
+  \expandafter\edef\csname #2@warning@noline\endcsname##1{%
+    \noexpand\HardWrap
+      {\@nameuse{hw@#1@warning@noline}{#3}}
+      {\number\numexpr#5\relax}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {##1}%
+  }%
+  \expandafter\edef\csname #2@error\endcsname##1##2{%
+    \noexpand\HardWrap
+      {\xdef\noexpand\hw@tempa}
+      {\number\numexpr#5\relax}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {\MessageBreak ##1}%
+    \noexpand\HardWrap
+      {\xdef\noexpand\hw@tempb}
+      {\the\hw@maxprintline}
+      {\unexpanded\expandafter{\HardWrapSetup}}
+      {\noexpand\MessageBreak}
+      {\MessageBreak ##2}%
+    \unexpanded{%
+      \@nameuse{hw@#1@error}{#3}{\hw@tempa}{\hw@tempb}%
+    }%
+  }%
+}
+\protected\def\hw@class@info          #1#2{\ClassInfo   {#1}{#2\hw@suffix}}
+\protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobbletwo}}
+\protected\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
+\protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobbletwo}}
+\protected\def\hw@class@error         #1#2{\ClassError  {#1}{#2}}
+\protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
+\protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobbletwo}}
+\protected\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
+\protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobbletwo}}
+\protected\def\hw@package@error         #1#2{\PackageError  {#1}{#2}}
+%% 
+%% Copyright (C) 2010 by Will Robertson <will.robertson@latex-project.org>
+%% Copyright (C) 2010 by Kevin Godby <godbyk@gmail.com>
+%% 
+%% Distributable under the LaTeX Project Public License,
+%% version 1.3c or higher (your choice). The latest version of
+%% this license is at: http://www.latex-project.org/lppl.txt
+%% 
+%% This work is "maintained" (as per LPPL maintenance status)
+%% by Will Robertson.
+%% 
+%% This work consists of the file  hardwrap.dtx
+%%           and the derived files hardwrap.sty,
+%%                                 hardwrap.ins, and
+%%                                 hardwrap.pdf.
+%% 
+%%
+%% End of file `hardwrap.sty'.
