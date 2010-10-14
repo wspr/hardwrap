@@ -17,7 +17,7 @@
 \postamble
 
 Copyright (C) 2010 by Will Robertson <will.robertson@latex-project.org>
-Copyright (C) 2010 by Kevin Godby <godbyk@gmail.com>
+Copyright (C) 2010 by Kevin Godby <kevin@godby.org>
 
 Distributable under the LaTeX Project Public License,
 version 1.3c or higher (your choice). The latest version of
@@ -170,7 +170,23 @@ This work consists of the file  hardwrap.dtx
 
 \usepackage{xcolor,hardwrap,lipsum,booktabs,fancyvrb,hypdoc}
 \fvset{gobble=2}
-\hypersetup{linktocpage,linkcolor=niceblue}
+\hypersetup{%
+  linktocpage,
+  linkcolor=niceblue,
+  pdfauthor={Kevin Godby and Will Robertson}
+}
+
+% A few shorthand macros to ensure consistency
+\newcommand{\email}[1]{$\langle$\href{mailto:#1}{#1}$\rangle$}
+\usepackage{xspace}
+\newcommand{\hairsp}{\kern1pt}% hair space
+\let\latintext\emph% or \relax for no italics
+\newcommand*{\latinphrase}[1]{\latintext{#1}\@ifnextchar.{}{.\xspace}}
+\newcommand*{\ie}{\latinphrase{i.\hairsp e\@}}% TODO search for and add comma if not found
+\newcommand*{\eg}{\latinphrase{e.\hairsp g\@}}% TODO search for and add comma if not found
+\newcommand*{\etc}{\latinphrase{etc}}
+\newcommand*{\etal}{\latinphrase{et\,al}}
+
 
 \definecolor{niceblue}{rgb}{0.1,0.3,0.9}
 \def\theCodelineNo{\textcolor{niceblue}{\sffamily\tiny\arabic{CodelineNo}}}
@@ -203,7 +219,7 @@ This work consists of the file  hardwrap.dtx
 % \GetFileInfo{\jobname.dtx}
 %
 % \title{The \pkg{\jobname} package}
-% \author{Kevin Godby\\\normalsize \url{godbyk@gmail.com} \and Will Robertson\\ \normalsize\url{will.robertson@latex-project.org}}
+% \author{Kevin Godby\\\normalsize \email{kevin@godby.org} \and Will Robertson\\ \normalsize\email{will.robertson@latex-project.org}}
 % \date{\filedate \qquad \fileversion}
 %
 % \maketitle
@@ -212,7 +228,7 @@ This work consists of the file  hardwrap.dtx
 %   \noindent This pack\HW@info{Testing}age provides facilities for hard-wrapping text to a certain
 %   line width. The primary purpose is to make it easier for package authors to write
 %   informational messages for the console and log file;
-%   wrappers around \cs{PackageWarning} et~al.\ are provided for this.
+%   wrappers around \cs{PackageWarning} \etal\ are provided for this.
 % \end{abstract}
 %
 % \tableofcontents
@@ -264,14 +280,14 @@ This work consists of the file  hardwrap.dtx
 % \end{quote}
 %
 % For instance, calling \cs{GeneratePackageLogMacros}\earg{mypackage}
-% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, etc.
+% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, \etc.
 % The arguments for the generated macros are the same as the arguments for
-% \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, etc. Additionally, info messages may be printed with
+% \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, \etc. Additionally, info messages may be printed with
 % \cs{\meta{prefix}@info@noline} in which \LaTeX's
 % `\texttt{on input line \meta{num}}' suffix is suppressed.
 %
 % The \cs{GenerateClassLogMacros} command generates similar macros using
-% \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, etc.
+% \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, \etc.
 %
 % Note that no punctuation is added after messages, unlike standard \LaTeX.
 % You are free to punctuate your messages as you wish.
@@ -332,7 +348,7 @@ This work consists of the file  hardwrap.dtx
 % (foobar)                Aenean vel lectus. Nunc imperdiet justo nec
 % (foobar)                dolor; on input line 102.
 % \end{Verbatim}
-% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeping words together: (e.g., `Vestibulum' broken between lines two and three)
+% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeping words together: (\eg, `Vestibulum' broken between lines two and three)
 % \begin{Verbatim}[fontsize=\footnotesize]
 % Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis dis
 %  parturient montes, nascetur ridiculus mus. Ut pellentesque augue sed urna. Ves
@@ -616,7 +632,7 @@ This work consists of the file  hardwrap.dtx
 % \LaTeX{} informational, warning, and error messages are printed in the
 % format:
 % \begin{center}
-%   \ttfamily
+%   \ttfamily\small
 %   \begin{tabular}{l@{\space}l}
 %     Package \meta{pkgname} Info: & This is an informational message.\\
 %     (\meta{pkgname})             & That spans multiple lines. The\\
@@ -762,7 +778,7 @@ This work consists of the file  hardwrap.dtx
   }%
 }
 %    \end{macrocode}
-% Here are our wrappers for \cs{PackageInfo}, et~al., which are
+% Here are our wrappers for \cs{PackageInfo} \etal, which are
 % used above to generalise the code a little. Note that these macros are
 % \cs{protected}, which allows them to be used in an expanding context
 % without a preceding \cs{noexpand}.
