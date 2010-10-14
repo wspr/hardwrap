@@ -209,7 +209,7 @@ This work consists of the file  hardwrap.dtx
 % \maketitle
 %
 % \begin{abstract}
-%   \noindent This package provides facilities for hard-wrapping text to a certain
+%   \noindent This pack\HW@info{Testing}age provides facilities for hard-wrapping text to a certain
 %   line width. The primary purpose is to make it easier for package authors to write
 %   informational messages for the console and log file;
 %   wrappers around \cs{PackageWarning} et~al.\ are provided for this.
@@ -446,13 +446,13 @@ This work consists of the file  hardwrap.dtx
   \begingroup
     \hw@maxprintline=#2\relax
     \let\space\hw@protected@space
-    #3
+    #3%
     \edef\@tempa{#5}%
     \expandafter\hw@scan\@tempa\hw@scanstop
-    \def\hw@protected@newline{#4}
+    \def\hw@protected@newline{#4}%
     \let\space\hw@kernel@space
     \@temptokena={#1}%
-    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}
+    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}%
   \endgroup
 }
 %    \end{macrocode}
