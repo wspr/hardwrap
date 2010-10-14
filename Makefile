@@ -34,12 +34,11 @@ clean:
 
 
 
-
 ###### NIGHTLY BUILDS ######
 
 # Mac OS X specific:
 GETPASSWORD := $(shell security 2>&1 >/dev/null find-internet-password -gs tlcontrib.metatex.org | cut -f 2 -d ' ')
-GETUSERNAME = := $(shell security find-internet-password -s tlcontrib.metatex.org | grep "acct" | cut -f 4 -d \")
+GETUSERNAME := $(shell security find-internet-password -s tlcontrib.metatex.org | grep "acct" | cut -f 4 -d \")
 
 BRANCH = tdsbuild
 
@@ -65,7 +64,7 @@ checkbranch:
 	then echo "TDS branch exists"; \
 	else \
 	  echo "TDS branch does not exist; doing so will remove all untracked files from your working directory. Create the TDS branch with\n    make createbranch"; \
-	  false;
+	  false; \
 	fi;
 
 createbranch: $(TDS)
@@ -79,8 +78,17 @@ createbranch: $(TDS)
 	git commit -m "Initial TDS commit"
 	git checkout master
 	git push origin $(BRANCH) master
-	@echo "Pinging TLContrib for automatic update"
-	curl $(TLC) > /dev/null 2>&1
+	@echo "\nTDS branch creation was successful.\n"
+	@echo "Now create a new package at TLContrib: http://tlcontrib.metatex.org/"
+	@echo "Use the following metadata:"
+	@echo "    Package ID: $(PKG)"
+	@echo "       GIT URL: http://github.com/$(USERNAME)/$(PKG).git"
+	@echo "                (username '$(USERNAME)' might need adjusting)"
+	@echo "        BRANCH: $(BRANCH)"
+	@echo "\nAfter this process, use \`make tdsbuild\` to"
+	@echo "    (a) push your recent work on the master branch,"
+	@echo "    (b) automatically create a TDS snapshot,"
+	@echo "    (c) send the TDS snapshot to TLContrib."
 
 
 tdsbuild: checkbranch $(TDS)
@@ -88,9 +96,9 @@ tdsbuild: checkbranch $(TDS)
 	@echo "Constructing commit history for snapshot build"
 	date "+TDS snapshot %Y-%m-%d %H:%M" > $(LOG)
 	echo '\n\nApproximate commit history since last snapshot:\n' >> $(LOG)
-	git log --after="`git log -b tds-build -n 1 --pretty=format:"%aD"`" --pretty=format:"%+H%+s%+b" >> $(LOG)
+	git log --after="`git log -b $(BRANCH) -n 1 --pretty=format:"%aD"`" --pretty=format:"%+H%+s%+b" >> $(LOG)
 	@echo "Committing TDS snapshot to separate branch"
-	git checkout tds-build
+	git checkout $(BRANCH)
 	unzip -o $(TMP)/$(TDS) -d .
 	rm $(TMP)/$(TDS)
 	git commit --all --file=$(LOG)
