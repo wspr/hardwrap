@@ -76,48 +76,41 @@ This work consists of the file  hardwrap.dtx
 
 \usepackage{calc,framed}
 
-
-\newcommand*{\frametitle}[1]{%
-  \noindent\hspace{\dimexpr-\FrameSep-\FrameRule}\parbox{\linewidth}{\centering\strut#1}}%       centered
-
 \expandafter\newif\csname ifcontframe\endcsname
 
-\newcommand*{\Fr@meSetup}[2]{%
-  \fboxrule=\FrameRule \fboxsep=\FrameSep
+\newcommand*{\Fr@meSetup}{%
   \global\contframefalse
-  \def\Fr@meFirst{#2}%
-  \def\Fr@meCont{#1}%
   \def\FrameCommand##1{%
-    \Title@Fr@me{\Fr@meCurrent}{##1}%
+    \vbox{\FrameTitle{\Fr@meCurrent}\hbox{##1}}
     \global\let\Fr@meCurrent\Fr@meNext
     \ifcontframe
-      \global\let\Fr@meNext\Fr@meCont
+      \global\let\Fr@meNext \macrotitlecont
     \fi
     \global\contframetrue}%
-  \global\let\Fr@meCurrent\Fr@meFirst
-  \global\let\Fr@meNext\Fr@meFirst}
+  \global\let\Fr@meCurrent\macrotitle
+  \global\let\Fr@meNext\macrotitle}
 
 \newcommand*{\FrameTitle}[1]{%
   \nobreak \vskip -0.7\FrameSep
     \rlap{\frametitle{#1}}\nobreak\nointerlineskip
     \vskip 0.7\FrameSep}
 
+\newcommand*{\frametitle}[1]{%
+  \parbox{\linewidth}{\footnotesize\strut#1}%
+}%
 
-\newenvironment{framewithtitle}[2][\Fr@meFirst\hfil{\footnotesize({\itshape cont.})}]{%
-  \def\Title@Fr@me##1##2{%
-    \hspace{\dimexpr-\FrameRule-\FrameSep\relax}%
-    \fcolorbox{gray}{white}{%
-      \vbox{\FrameTitle{##1}\hbox{##2}}%
-    }%
-  }%
-  \Fr@meSetup{#1}{#2}%
+\newenvironment{macroframe}{%
+  \Fr@meSetup
   \MakeFramed{%
     \advance\hsize-\width
     \FrameRestore}}%
   {\global\contframefalse
-   \endMakeFramed}
+   \endMakeFramed
+  }
 
-\protected\def\framelabel#1{\texttt{\color{niceblue}\footnotesize#1}}
+\def\macrotitlecont{\macrotitleshort\space(\textit{cont.})}
+
+\protected\def\framelabel#1{\texttt{\color{niceblue}#1}}
 
 \def\macrotitle{}
 \renewenvironment{macro}[1]{%
@@ -125,15 +118,18 @@ This work consists of the file  hardwrap.dtx
   \ifx\macrotitle\@empty
     \let\macrotitle\@nil
   \else\ifx\macrotitle\@nil
-    \edef\macrotitle{\framelabel{\detokenize\expandafter{\@ii}}}%
+    \edef\macrotitle{\framelabel{\detokenize\expandafter{\@ii}\unskip}}%
+    \edef\macrotitleone{\framelabel{\detokenize\expandafter{\@ii}\unskip}}%
+    \let \macrotitleshort \macrotitleone
   \else
-    \edef\macrotitle{\macrotitle\hfil\framelabel{\detokenize\expandafter{\@ii}}}%
+    \edef\macrotitle{\macrotitle, \framelabel{\detokenize\expandafter{\@ii}\unskip}}%
+    \edef\macrotitleshort{\macrotitleone, etc.}%
   \fi\fi
   }
-  \begin{framewithtitle}{\macrotitle}
+  \begin{macroframe}
   \noindent\ignorespaces
 }{%
-  \end{framewithtitle}
+  \end{macroframe}
 }
 
 \usepackage{titlesec}
@@ -397,8 +393,8 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Counters and variables}
 % \begin{macro}{\hw@charcount,\hw@wordcount}
-% The \cs{hw@charcount} count holds the number of characters on the current
-% line.  The \cs{hw@wordcount} count holds the number of characters in the current word.
+% The first holds the number of characters on the current
+% line; the second the number of characters in the current word.
 %    \begin{macrocode}
 \newcount\hw@charcount
 \hw@charcount=-1\relax
@@ -410,8 +406,7 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@currtext,\hw@currline,\hw@currword}
-% We store the current word, current line, and current wrapped text in the
-% following macros:
+% Used to store the current word, current line, and current wrapped text.
 %    \begin{macrocode}
 \def\hw@currtext{}
 \def\hw@currline{}
