@@ -1,4 +1,16 @@
 
+help:
+	@echo "This Makefile accepts the following targets:"
+	@echo "  "
+	@echo "    ctan - build the zip file for CTAN upload"
+	@echo "   clean - remove intermediate files"
+	@echo "  "
+	@echo "  createbranch - create a git branch for TDS builds"
+	@echo "     tdsbranch - upload TDS build to TLContrib & push to Github"
+	@echo "  "
+
+.PHONY = help ctan clean tlclogin tlcuser tlcpw
+
 PKG = $(shell basename `pwd`)
 FILES = README $(PKG).ins $(PKG).dtx
 RESULTS = $(PKG).pdf $(PKG).sty
@@ -6,12 +18,14 @@ RESULTS = $(PKG).pdf $(PKG).sty
 CTAN = $(PKG).tar.gz
 TDS = $(PKG).tds.zip
 
-$(TDS): $(CTAN)
-	tar xzf $(CTAN)
-	rm -rf $(PKG)/
+ctan: $(CTAN)
 
 $(CTAN): $(FILES) $(RESULTS)
 	ctanify $(PKG).ins $(PKG).pdf README
+
+$(TDS): $(CTAN)
+	tar xzf $(CTAN)
+	rm -rf $(PKG)/
 
 $(PKG).ins: $(PKG).dtx
 	tex $<
@@ -27,7 +41,6 @@ $(PKG).sty: $(PKG).ins
 README: README.markdown
 	cp -f $< $@
 
-.PHONY: clean
 
 clean:
 	rm -f $(RESULTS) $(PKG).ins README $(PKG).aux $(PKG).log $(PKG).pdf $(PKG).idx $(PKG).tar.gz $(PKG).hd $(PKG).out $(PKG).toc $(PKG).txt $(PKG).tds.zip
@@ -38,17 +51,13 @@ clean:
 
 UNAME_S := $(shell uname -s)
 
-# Mac OS X specific:
+# Mac OS X:
 ifeq ($(UNAME_S),Darwin)
-	GETPASSWORD := $(shell security 2>&1 >/dev/null find-internet-password -gs tlcontrib.metatex.org | cut -f 2 -d ' ')
-	GETUSERNAME := $(shell security find-internet-password -s tlcontrib.metatex.org | grep "acct" | cut -f 4 -d \")
 	MD5 = md5
 endif
 
-# Linux-specific
+# Linux:
 ifeq ($(UNAME_S),Linux)
-	GETPASSWORD := ""
-	GETUSERNAME := ""
 	MD5 = md5sum
 endif
 
@@ -56,19 +65,7 @@ BRANCH = tdsbuild
 
 TMP = /tmp
 LOG =  $(TMP)/gitlog.tmp
-PASSWORD = $(GETPASSWORD)
-USERNAME = $(GETUSERNAME)
-VERSION := $(shell date "+%Y-%m-%d@%H:%M")
-CHECKSUM := $(shell echo $(USERNAME)/$(PASSWORD)/$(VERSION) | $(MD5) )
-TLC := http://tlcontrib.metatex.org/cgi-bin/package.cgi/action=notify/key=$(PKG)/check=$(CHECKSUM)?version=$(VERSION)
 
-
-hello:
-	@echo $(USERNAME)
-	@echo $(PASSWORD)
-	@echo $(VERSION)
-	@echo $(CHECKSUM)
-	@echo $(TLC)
 
 checkbranch:
 	@if  git branch | grep $(BRANCH) > /dev/null ; \
@@ -93,8 +90,6 @@ createbranch: $(TDS)
 	@echo "Now create a new package at TLContrib: http://tlcontrib.metatex.org/"
 	@echo "Use the following metadata:"
 	@echo "    Package ID: $(PKG)"
-	@echo "       GIT URL: http://github.com/$(USERNAME)/$(PKG).git"
-	@echo "                (username '$(USERNAME)' might need adjusting)"
 	@echo "        BRANCH: $(BRANCH)"
 	@echo "\nAfter this process, use \`make tdsbuild\` to"
 	@echo "    (a) push your recent work on the master branch,"
@@ -102,7 +97,20 @@ createbranch: $(TDS)
 	@echo "    (c) send the TDS snapshot to TLContrib."
 
 
-tdsbuild: checkbranch $(TDS)
+ifeq ($(UNAME_S),Darwin)
+  tlclogin:  USERNAME = $(shell security find-internet-password -s tlcontrib.metatex.org | grep "acct" | cut -f 4 -d \")
+  tlclogin:  PASSWORD = $(shell security 2>&1 >/dev/null find-internet-password -gs tlcontrib.metatex.org | cut -f 2 -d ' ')
+endif
+
+ifeq ($(UNAME_S),Linux)
+  tlclogin:  USERNAME = ""
+  tlclogin:  PASSWORD = ""
+endif
+
+tlclogin:  VERSION = $(shell date "+%Y-%m-%d@%H:%M")
+tlclogin: ;
+
+tdsbuild: checkbranch tlclogin $(TDS)
 	cp -f $(TDS) $(TMP)/
 	@echo "Constructing commit history for snapshot build"
 	date "+TDS snapshot %Y-%m-%d %H:%M" > $(LOG)
@@ -118,6 +126,7 @@ tdsbuild: checkbranch $(TDS)
 	git checkout master
 	git push origin $(BRANCH) master
 	@echo "Pinging TLContrib for automatic update"
-	curl $(TLC) > /dev/null 2>&1
+	curl http://tlcontrib.metatex.org/cgi-bin/package.cgi/action=notify/key=$(PKG)/check=$(shell echo $(USERNAME)/$(PASSWORD)/$(VERSION) | $(MD5) )?version=$(VERSION) > /dev/null 2>&1
+
 
 
