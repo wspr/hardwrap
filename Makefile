@@ -30,7 +30,7 @@ README: README.markdown
 .PHONY: clean
 
 clean:
-	rm -f $(RESULTS) $(PKG).ins README $(PKG).aux $(PKG).log $(PKG).pdf $(PKG).idx $(PKG).tar.gz $(PKG).hd $(PKG).out $(PKG).toc $(PKG).txt
+	rm -f $(RESULTS) $(PKG).ins README $(PKG).aux $(PKG).log $(PKG).pdf $(PKG).idx $(PKG).tar.gz $(PKG).hd $(PKG).out $(PKG).toc $(PKG).txt $(PKG).tds.zip
 
 
 
