@@ -9,7 +9,7 @@ help:
 	@echo "     tdsbranch - upload TDS build to TLContrib & push to Github"
 	@echo "  "
 
-.PHONY = help ctan clean tlclogin tlcuser tlcpw
+.PHONY = help ctan clean checkbranch createbranch tlclogin tdsbuild
 
 PKG = $(shell basename `pwd`)
 FILES = README $(PKG).ins $(PKG).dtx
@@ -43,7 +43,7 @@ README: README.markdown
 
 
 clean:
-	rm -f $(RESULTS) $(PKG).ins README $(PKG).aux $(PKG).log $(PKG).pdf $(PKG).idx $(PKG).tar.gz $(PKG).hd $(PKG).out $(PKG).toc $(PKG).txt $(PKG).tds.zip
+	rm -f $(RESULTS) $(CTAN) $(TDS) $(PKG).ins README $(PKG).aux $(PKG).log $(PKG).pdf $(PKG).idx $(PKG).hd $(PKG).out $(PKG).toc $(PKG).txt
 
 
 
