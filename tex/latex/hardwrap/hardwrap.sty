@@ -13,90 +13,22 @@
 %% 
 \ProvidesPackage{hardwrap}
   [2010/10/02 v0.1 Hard wrap messages]
-\RequirePackage{ifplatform}
+\IfFileExists{ifplatform.sty}{%
+  \RequirePackage{ifplatform}
+}{%
+  \newif\ifwindows
+  \IfFileExists{/dev/null}{\windowsfalse}{\windowstrue}
+}
 \newcount\hw@charcount
-\hw@charcount=-1\relax
 \newcount\hw@wordcount
 \def\hw@currtext{}
 \def\hw@currline{}
 \def\hw@currword{}
 \protected\def\hw@protected@newline{}
 \protected\def\hw@protected@space{ }
-\def\hw@expanding@space{ }
-\let\hw@kernel@space\space
-\def\hw@scanstop{\hw@scanstop}
-\newcommand\HardWrap[5]{%
-  \begingroup
-    \hw@maxprintline=#2\relax
-    \let\space\hw@protected@space
-    #3%
-    \protected@edef\@tempa{#5}%
-    \expandafter\hw@scan\@tempa\hw@scanstop
-    \def\hw@protected@newline{#4}%
-    \let\space\hw@kernel@space
-    \@temptokena={#1}%
-    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}%
-  \endgroup
-}
-\def\hw@scan{%
-  \futurelet\let@token\hw@process
-}
-\def\hw@process{%
-  \ifx\let@token\hw@scanstop\relax
-    \hw@process@end
-    \let\next\@gobble
-  \else
-    \ifx\let@token\@sptoken
-      \expandafter\hw@wordcount\expandafter\hw@strlen\expandafter{\hw@currword}\relax
-      \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline
-        \advance\hw@charcount by \hw@wordcount
-        \ifx\hw@currline\@empty
-          \protected@edef\hw@currline{\hw@currword}%
-        \else
-          \advance\hw@charcount by 1\relax % account for the space character
-          \protected@edef\hw@currline{\hw@currline\hw@expanding@space\hw@currword}%
-        \fi
-      \else
-        \hw@charcount=\hw@wordcount\relax
-        \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
-        \let\hw@currline\hw@currword
-      \fi
-      \let\hw@currword\@empty
-      \let\next\hw@dochar
-    \else
-      \let\next\hw@dochar
-    \fi
-  \fi
-  \next
-}
-\def\hw@dochar#1{%
-  \def\@tempa{#1}%
-  \ifx\@tempa\hw@scanstop
-    \hw@process@end
-  \else
-    \protected@edef\hw@currword{\hw@currword\detokenize{#1}}%
-    \expandafter\hw@scan
-  \fi
-}
-\def\hw@process@end{%
-    \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline\relax
-      \protected@edef\hw@wrappedtext{%
-        \hw@currtext
-        \ifx\hw@currline\@empty\else
-          \hw@currline\space
-        \fi
-        \hw@currword
-      }%
-    \else
-      \protected@edef\hw@wrappedtext{%
-        \hw@currtext\hw@currline\hw@protected@newline\hw@currword
-      }%
-    \fi
-}
-\def\HardWrapSetup{%
-    \let \  \hw@protected@space
-    \let \\ \hw@protected@newline
-}
+\let\hw@expanding@space\space
+\protected\def\hw@insert@newline{\hw@insert@newline}
+\protected\def\hw@scanstop{\hw@scanstop}
 \def\hw@strlen#1{%
   \numexpr0\hw@Ncharscan#1\hw@scanstop\relax
 }
@@ -108,17 +40,126 @@
  \fi
  {+1\hw@Ncharscan}%
 }
+\def\hw@strlen@of#1{%
+  \expandafter\hw@strlen\expandafter{#1}%
+}
 \newcount\hw@maxprintline
 \ifwindows\else
   \ifnum\pdfshellescape>0\relax
     \hw@maxprintline=\@@input"|kpsewhich -var-value=max_print_line"\relax
   \fi
 \fi
-\ifnum\hw@maxprintline=0\relax % default
+\ifnum\hw@maxprintline=0\relax
   \hw@maxprintline=79\relax % default
 \fi
 \newcommand*{\setmaxprintline}[1]{%
   \hw@maxprintline=#1\relax
+}
+\newcommand*\HardWrap[5]{%
+  \begingroup
+    \hw@maxprintline=#2\relax
+    \let\space\hw@protected@space
+    \def\ {\space}%
+    \let\\\hw@insert@newline
+    \let\noexpand\string
+    #3%
+    \begingroup
+      \let\protect\string
+      \xdef\@tempa{#5}%
+    \endgroup
+    \expandafter\hw@scan\@tempa\hw@scanstop
+    \def\\{\hw@protected@newline}%
+    \def\hw@protected@newline{#4}%
+    \let\space\hw@expanding@space
+    \@temptokena={#1}%
+    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}%
+  \endgroup
+}
+\def\hw@scan{%
+  \futurelet\let@token\hw@process
+}
+\def\hw@process{%
+  \ifx\let@token\hw@scanstop\relax
+    \hw@process@end
+    \let\next\@gobble
+  \else\ifx\let@token\@sptoken
+    \hw@process@space
+    \let\next\hw@dochar
+  \else\ifx\let@token\hw@insert@newline
+    \hw@process@messagebreak
+    \def\next{\expandafter\hw@dochar\@gobble}%
+  \else
+    \let\next\hw@dochar
+  \fi\fi\fi
+  \next
+}
+\def\hw@dochar#1{%
+  \protected\def\@tempa{#1}%
+  \ifx\@tempa\hw@scanstop
+    \let\next\hw@process@end
+  \else\ifx\@tempa\hw@insert@newline
+    \hw@process@messagebreak
+    \let\next\hw@scan
+  \else
+    \edef\hw@currword{\hw@currword #1}%
+    \let\next\hw@scan
+  \fi\fi
+  \next
+}
+\def\hw@process@space{%
+  \hw@wordcount=\hw@strlen@of\hw@currword\relax
+  \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline
+    \advance\hw@charcount by \hw@wordcount
+    \ifx\hw@currline\@empty
+      \edef\hw@currline{\hw@currword}%
+    \else
+      \advance\hw@charcount by 1\relax % account for the space character
+      \edef\hw@currline{\hw@currline\hw@expanding@space\hw@currword}%
+    \fi
+  \else
+    \hw@charcount=\hw@wordcount\relax
+    \edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
+    \let\hw@currline\hw@currword
+  \fi
+  \let\hw@currword\@empty
+}
+\def\hw@process@messagebreak{%
+  \hw@wordcount=\hw@strlen@of\hw@currword\relax
+  \ifnum\numexpr(\hw@charcount+\hw@wordcount)<\hw@maxprintline
+    \edef\hw@currtext{%
+      \hw@currtext
+      \ifx\hw@currline\@empty\else
+        \hw@currline\space
+      \fi
+      \hw@currword\hw@protected@newline
+    }%
+    \hw@charcount=0\relax
+    \let\hw@currline\@empty
+  \else
+    \edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
+    \hw@charcount=\hw@wordcount
+    \let\hw@currline\hw@currword
+  \fi
+  \let\hw@currword\@empty
+}
+\def\hw@process@end{%
+  \ifnum\numexpr(\hw@charcount+\hw@wordcount)<\hw@maxprintline
+    \edef\hw@wrappedtext{%
+      \hw@currtext
+      \ifx\hw@currline\@empty\else
+        \hw@currline\space
+      \fi
+      \hw@currword
+    }%
+  \else
+    \edef\hw@wrappedtext{%
+      \hw@currtext\hw@currline\hw@protected@newline\hw@currword
+    }%
+  \fi
+}
+\def\HardWrapSetup{%
+  \def\MessageBreak{\\}%
+  \def\newline{\\}%
 }
 \newcommand\hw@suffix{^^JThis message occurred}
 \newcommand{\GeneratePackageLogMacros}[2][]{%
@@ -176,13 +217,13 @@
       {\xdef\noexpand\hw@tempa}
       {\number\numexpr#5\relax}
       {\unexpanded\expandafter{\HardWrapSetup}}
-      {\noexpand\MessageBreak}
+      {\MessageBreak}
       {\MessageBreak ##1}%
     \noexpand\HardWrap
       {\xdef\noexpand\hw@tempb}
       {\the\hw@maxprintline}
       {\unexpanded\expandafter{\HardWrapSetup}}
-      {\noexpand\MessageBreak}
+      {\MessageBreak}
       {\MessageBreak ##2}%
     \unexpanded{%
       \@nameuse{hw@#1@error}{#3}{\hw@tempa}{\hw@tempb}%
@@ -193,12 +234,12 @@
 \protected\def\hw@class@info@noline   #1#2{\ClassInfo   {#1}{#2\@gobbletwo}}
 \protected\def\hw@class@warning       #1#2{\ClassWarning{#1}{#2\hw@suffix}}
 \protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobbletwo}}
-\protected\def\hw@class@error         #1#2{\ClassError  {#1}{#2}}
+\protected\def\hw@class@error         #1#2{\ClassError  {#1}{#2\@gobble}}
 \protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
 \protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobbletwo}}
 \protected\def\hw@package@warning       #1#2{\PackageWarning{#1}{#2\hw@suffix}}
 \protected\def\hw@package@warning@noline#1#2{\PackageWarning{#1}{#2\@gobbletwo}}
-\protected\def\hw@package@error         #1#2{\PackageError  {#1}{#2}}
+\protected\def\hw@package@error         #1#2{\PackageError  {#1}{#2\@gobble}}
 %% 
 %% Copyright (C) 2010 by Will Robertson <will.robertson@latex-project.org>
 %% Copyright (C) 2010 by Kevin Godby <kevin@godby.org>
