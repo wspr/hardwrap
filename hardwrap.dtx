@@ -203,7 +203,7 @@ This work consists of the file  hardwrap.dtx
 % \GenerateClassLogMacros[HWC]{hardwrap}
 % \HW@info{Testing}
 % \HW@info@noline{Testing}
-% \HW@warning{Testing}
+% \HW@warning{Testing \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc}
 % \HW@warning@noline{Testing}
 % \HW@warning{Terminal spaces used to cause an infinite loop! No more }
 % \HW@warning{\space Testing\space\space\space spaces.\space}
@@ -461,7 +461,7 @@ This work consists of the file  hardwrap.dtx
     \hw@maxprintline=#2\relax
     \let\space\hw@protected@space
     #3%
-    \edef\@tempa{#5}%
+    \protected@edef\@tempa{#5}%
     \expandafter\hw@scan\@tempa\hw@scanstop
     \def\hw@protected@newline{#4}%
     \let\space\hw@kernel@space
@@ -501,6 +501,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
   \else
     \ifx\let@token\@sptoken
+      \expandafter\hw@wordcount\expandafter\hw@strlen\expandafter{\hw@currword}\relax
       \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline
         \advance\hw@charcount by \hw@wordcount
         \ifx\hw@currline\@empty
@@ -514,7 +515,6 @@ This work consists of the file  hardwrap.dtx
         \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
         \let\hw@currline\hw@currword
       \fi
-      \hw@wordcount=1\relax
       \let\hw@currword\@empty
       \let\next\hw@dochar
 %    \end{macrocode}
@@ -522,7 +522,6 @@ This work consists of the file  hardwrap.dtx
 % the current word and continue reading tokens.
 %    \begin{macrocode}
     \else
-      \advance\hw@wordcount by 1\relax
       \let\next\hw@dochar
     \fi
   \fi
@@ -540,7 +539,7 @@ This work consists of the file  hardwrap.dtx
   \ifx\@tempa\hw@scanstop
     \hw@process@end
   \else
-    \protected@edef\hw@currword{\hw@currword#1}%
+    \protected@edef\hw@currword{\hw@currword\detokenize{#1}}%
     \expandafter\hw@scan
   \fi
 }
@@ -586,7 +585,7 @@ This work consists of the file  hardwrap.dtx
 % A simple string-length macro.
 %    \begin{macrocode}
 \def\hw@strlen#1{%
- \number\numexpr\hw@Ncharscan#1\hw@scanstop\relax
+  \numexpr0\hw@Ncharscan#1\hw@scanstop\relax
 }
 \def\hw@Ncharscan#1{%
  \ifx#1\hw@scanstop
