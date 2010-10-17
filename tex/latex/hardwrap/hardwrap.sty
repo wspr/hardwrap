@@ -29,13 +29,13 @@
   \begingroup
     \hw@maxprintline=#2\relax
     \let\space\hw@protected@space
-    #3
-    \edef\@tempa{#5}%
+    #3%
+    \protected@edef\@tempa{#5}%
     \expandafter\hw@scan\@tempa\hw@scanstop
-    \def\hw@protected@newline{#4}
+    \def\hw@protected@newline{#4}%
     \let\space\hw@kernel@space
     \@temptokena={#1}%
-    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}
+    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}%
   \endgroup
 }
 \def\hw@scan{%
@@ -47,7 +47,8 @@
     \let\next\@gobble
   \else
     \ifx\let@token\@sptoken
-      \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline
+      \expandafter\hw@wordcount\expandafter\hw@strlen\expandafter{\hw@currword}\relax
+      \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline
         \advance\hw@charcount by \hw@wordcount
         \ifx\hw@currline\@empty
           \protected@edef\hw@currline{\hw@currword}%
@@ -60,11 +61,9 @@
         \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
         \let\hw@currline\hw@currword
       \fi
-      \hw@wordcount=1\relax
       \let\hw@currword\@empty
       \let\next\hw@dochar
     \else
-      \advance\hw@wordcount by 1\relax
       \let\next\hw@dochar
     \fi
   \fi
@@ -75,12 +74,12 @@
   \ifx\@tempa\hw@scanstop
     \hw@process@end
   \else
-    \protected@edef\hw@currword{\hw@currword#1}%
+    \protected@edef\hw@currword{\hw@currword\detokenize{#1}}%
     \expandafter\hw@scan
   \fi
 }
 \def\hw@process@end{%
-    \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
+    \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline\relax
       \protected@edef\hw@wrappedtext{%
         \hw@currtext
         \ifx\hw@currline\@empty\else
@@ -99,7 +98,7 @@
     \let \\ \hw@protected@newline
 }
 \def\hw@strlen#1{%
- \number\numexpr\hw@Ncharscan#1\hw@scanstop\relax
+  \numexpr0\hw@Ncharscan#1\hw@scanstop\relax
 }
 \def\hw@Ncharscan#1{%
  \ifx#1\hw@scanstop
@@ -202,7 +201,7 @@
 \protected\def\hw@package@error         #1#2{\PackageError  {#1}{#2}}
 %% 
 %% Copyright (C) 2010 by Will Robertson <will.robertson@latex-project.org>
-%% Copyright (C) 2010 by Kevin Godby <godbyk@gmail.com>
+%% Copyright (C) 2010 by Kevin Godby <kevin@godby.org>
 %% 
 %% Distributable under the LaTeX Project Public License,
 %% version 1.3c or higher (your choice). The latest version of

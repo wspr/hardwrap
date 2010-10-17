@@ -17,7 +17,7 @@
 \postamble
 
 Copyright (C) 2010 by Will Robertson <will.robertson@latex-project.org>
-Copyright (C) 2010 by Kevin Godby <godbyk@gmail.com>
+Copyright (C) 2010 by Kevin Godby <kevin@godby.org>
 
 Distributable under the LaTeX Project Public License,
 version 1.3c or higher (your choice). The latest version of
@@ -76,48 +76,41 @@ This work consists of the file  hardwrap.dtx
 
 \usepackage{calc,framed}
 
-
-\newcommand*{\frametitle}[1]{%
-  \noindent\hspace{\dimexpr-\FrameSep-\FrameRule}\parbox{\linewidth}{\centering\strut#1}}%       centered
-
 \expandafter\newif\csname ifcontframe\endcsname
 
-\newcommand*{\Fr@meSetup}[2]{%
-  \fboxrule=\FrameRule \fboxsep=\FrameSep
+\newcommand*{\Fr@meSetup}{%
   \global\contframefalse
-  \def\Fr@meFirst{#2}%
-  \def\Fr@meCont{#1}%
   \def\FrameCommand##1{%
-    \Title@Fr@me{\Fr@meCurrent}{##1}%
+    \vbox{\FrameTitle{\Fr@meCurrent}\hbox{##1}}
     \global\let\Fr@meCurrent\Fr@meNext
     \ifcontframe
-      \global\let\Fr@meNext\Fr@meCont
+      \global\let\Fr@meNext \macrotitlecont
     \fi
     \global\contframetrue}%
-  \global\let\Fr@meCurrent\Fr@meFirst
-  \global\let\Fr@meNext\Fr@meFirst}
+  \global\let\Fr@meCurrent\macrotitle
+  \global\let\Fr@meNext\macrotitle}
 
 \newcommand*{\FrameTitle}[1]{%
   \nobreak \vskip -0.7\FrameSep
     \rlap{\frametitle{#1}}\nobreak\nointerlineskip
     \vskip 0.7\FrameSep}
 
+\newcommand*{\frametitle}[1]{%
+  \parbox{\linewidth}{\footnotesize\strut#1}%
+}%
 
-\newenvironment{framewithtitle}[2][\Fr@meFirst\hfil{\footnotesize({\itshape cont.})}]{%
-  \def\Title@Fr@me##1##2{%
-    \hspace{\dimexpr-\FrameRule-\FrameSep\relax}%
-    \fcolorbox{gray}{white}{%
-      \vbox{\FrameTitle{##1}\hbox{##2}}%
-    }%
-  }%
-  \Fr@meSetup{#1}{#2}%
+\newenvironment{macroframe}{%
+  \Fr@meSetup
   \MakeFramed{%
     \advance\hsize-\width
     \FrameRestore}}%
   {\global\contframefalse
-   \endMakeFramed}
+   \endMakeFramed
+  }
 
-\protected\def\framelabel#1{\texttt{\color{niceblue}\footnotesize#1}}
+\def\macrotitlecont{\macrotitleshort\space(\textit{cont.})}
+
+\protected\def\framelabel#1{\texttt{\color{niceblue}#1}}
 
 \def\macrotitle{}
 \renewenvironment{macro}[1]{%
@@ -125,15 +118,18 @@ This work consists of the file  hardwrap.dtx
   \ifx\macrotitle\@empty
     \let\macrotitle\@nil
   \else\ifx\macrotitle\@nil
-    \edef\macrotitle{\framelabel{\detokenize\expandafter{\@ii}}}%
+    \edef\macrotitle{\framelabel{\detokenize\expandafter{\@ii}\unskip}}%
+    \edef\macrotitleone{\framelabel{\detokenize\expandafter{\@ii}\unskip}}%
+    \let \macrotitleshort \macrotitleone
   \else
-    \edef\macrotitle{\macrotitle\hfil\framelabel{\detokenize\expandafter{\@ii}}}%
+    \edef\macrotitle{\macrotitle, \framelabel{\detokenize\expandafter{\@ii}\unskip}}%
+    \edef\macrotitleshort{\macrotitleone, etc.}%
   \fi\fi
   }
-  \begin{framewithtitle}{\macrotitle}
+  \begin{macroframe}
   \noindent\ignorespaces
 }{%
-  \end{framewithtitle}
+  \end{macroframe}
 }
 
 \usepackage{titlesec}
@@ -170,7 +166,23 @@ This work consists of the file  hardwrap.dtx
 
 \usepackage{xcolor,hardwrap,lipsum,booktabs,fancyvrb,hypdoc}
 \fvset{gobble=2}
-\hypersetup{linktocpage,linkcolor=niceblue}
+\hypersetup{%
+  linktocpage,
+  linkcolor=niceblue,
+  pdfauthor={Kevin Godby and Will Robertson}
+}
+
+% A few shorthand macros to ensure consistency
+\newcommand{\email}[1]{$\langle$\href{mailto:#1}{#1}$\rangle$}
+\usepackage{xspace}
+\newcommand{\hairsp}{\kern1pt}% hair space
+\let\latintext\emph% or \relax for no italics
+\newcommand*{\latinphrase}[1]{\latintext{#1}\@ifnextchar.{}{.\xspace}}
+\newcommand*{\ie}{\latinphrase{i.\hairsp e\@}}% TODO search for and add comma if not found
+\newcommand*{\eg}{\latinphrase{e.\hairsp g\@}}% TODO search for and add comma if not found
+\newcommand*{\etc}{\latinphrase{etc}}
+\newcommand*{\etal}{\latinphrase{et\,al}}
+
 
 \definecolor{niceblue}{rgb}{0.1,0.3,0.9}
 \def\theCodelineNo{\textcolor{niceblue}{\sffamily\tiny\arabic{CodelineNo}}}
@@ -191,28 +203,31 @@ This work consists of the file  hardwrap.dtx
 % \GenerateClassLogMacros[HWC]{hardwrap}
 % \HW@info{Testing}
 % \HW@info@noline{Testing}
-% \HW@warning{Testing}
+% \HW@warning{Testing \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc \noexpand \section abc}
 % \HW@warning@noline{Testing}
 % \HW@warning{Terminal spaces used to cause an infinite loop! No more }
 % \HW@warning{\space Testing\space\space\space spaces.\space}
-% \HW@warning{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
+% \HW@warning{Hello! This is an example of the hardwrap logging macro. Lets hope that it works properly and wrap our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
 % ^^A \HW@error{Hello! This is an example of the hardwrap logging macro. Let us hope that it works properly and wraps our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}{}
+%
+% \typeout{If we're inserting manual line breaks, we can only reach column 78:}
+% \typeout{123456789012345678901234567890123456789012345678901234567890123456789012345678^^J123}
 %
 % ^^A CONTINUE:
 %
 % \GetFileInfo{\jobname.dtx}
 %
 % \title{The \pkg{\jobname} package}
-% \author{Kevin Godby \and Will Robertson}
+% \author{Kevin Godby\\\normalsize \email{kevin@godby.org} \and Will Robertson\\ \normalsize\email{will.robertson@latex-project.org}}
 % \date{\filedate \qquad \fileversion}
 %
 % \maketitle
 %
 % \begin{abstract}
-%   \noindent This package provides facilities for hard-wrapping text to a certain
+%   \noindent This pack\HW@info{Testing}age provides facilities for hard-wrapping text to a certain
 %   line width. The primary purpose is to make it easier for package authors to write
 %   informational messages for the console and log file;
-%   wrappers around \cs{PackageWarning} et~al.\ are provided for this.
+%   wrappers around \cs{PackageWarning} \etal\ are provided for this.
 % \end{abstract}
 %
 % \tableofcontents
@@ -264,14 +279,14 @@ This work consists of the file  hardwrap.dtx
 % \end{quote}
 %
 % For instance, calling \cs{GeneratePackageLogMacros}\earg{mypackage}
-% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, etc.
+% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, \etc.
 % The arguments for the generated macros are the same as the arguments for
-% \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, etc. Additionally, info messages may be printed with
+% \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, \etc. Additionally, info messages may be printed with
 % \cs{\meta{prefix}@info@noline} in which \LaTeX's
 % `\texttt{on input line \meta{num}}' suffix is suppressed.
 %
 % The \cs{GenerateClassLogMacros} command generates similar macros using
-% \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, etc.
+% \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, \etc.
 %
 % Note that no punctuation is added after messages, unlike standard \LaTeX.
 % You are free to punctuate your messages as you wish.
@@ -332,7 +347,7 @@ This work consists of the file  hardwrap.dtx
 % (foobar)                Aenean vel lectus. Nunc imperdiet justo nec
 % (foobar)                dolor; on input line 102.
 % \end{Verbatim}
-% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeping words together: (e.g., `Vestibulum' broken between lines two and three)
+% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeping words together: (\eg, `Vestibulum' broken between lines two and three)
 % \begin{Verbatim}[fontsize=\footnotesize]
 % Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis dis
 %  parturient montes, nascetur ridiculus mus. Ut pellentesque augue sed urna. Ves
@@ -381,8 +396,8 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Counters and variables}
 % \begin{macro}{\hw@charcount,\hw@wordcount}
-% The \cs{hw@charcount} count holds the number of characters on the current
-% line.  The \cs{hw@wordcount} count holds the number of characters in the current word.
+% The first holds the number of characters on the current
+% line; the second the number of characters in the current word.
 %    \begin{macrocode}
 \newcount\hw@charcount
 \hw@charcount=-1\relax
@@ -394,8 +409,7 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@currtext,\hw@currline,\hw@currword}
-% We store the current word, current line, and current wrapped text in the
-% following macros:
+% Used to store the current word, current line, and current wrapped text.
 %    \begin{macrocode}
 \def\hw@currtext{}
 \def\hw@currline{}
@@ -446,13 +460,13 @@ This work consists of the file  hardwrap.dtx
   \begingroup
     \hw@maxprintline=#2\relax
     \let\space\hw@protected@space
-    #3
-    \edef\@tempa{#5}%
+    #3%
+    \protected@edef\@tempa{#5}%
     \expandafter\hw@scan\@tempa\hw@scanstop
-    \def\hw@protected@newline{#4}
+    \def\hw@protected@newline{#4}%
     \let\space\hw@kernel@space
     \@temptokena={#1}%
-    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}
+    \expandafter\the\expandafter\@temptokena\expandafter{\hw@wrappedtext}%
   \endgroup
 }
 %    \end{macrocode}
@@ -487,7 +501,8 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
   \else
     \ifx\let@token\@sptoken
-      \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline
+      \expandafter\hw@wordcount\expandafter\hw@strlen\expandafter{\hw@currword}\relax
+      \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline
         \advance\hw@charcount by \hw@wordcount
         \ifx\hw@currline\@empty
           \protected@edef\hw@currline{\hw@currword}%
@@ -500,7 +515,6 @@ This work consists of the file  hardwrap.dtx
         \protected@edef\hw@currtext{\hw@currtext\hw@currline\hw@protected@newline}%
         \let\hw@currline\hw@currword
       \fi
-      \hw@wordcount=1\relax
       \let\hw@currword\@empty
       \let\next\hw@dochar
 %    \end{macrocode}
@@ -508,7 +522,6 @@ This work consists of the file  hardwrap.dtx
 % the current word and continue reading tokens.
 %    \begin{macrocode}
     \else
-      \advance\hw@wordcount by 1\relax
       \let\next\hw@dochar
     \fi
   \fi
@@ -526,7 +539,7 @@ This work consists of the file  hardwrap.dtx
   \ifx\@tempa\hw@scanstop
     \hw@process@end
   \else
-    \protected@edef\hw@currword{\hw@currword#1}%
+    \protected@edef\hw@currword{\hw@currword\detokenize{#1}}%
     \expandafter\hw@scan
   \fi
 }
@@ -539,7 +552,7 @@ This work consists of the file  hardwrap.dtx
 % break and put the word on its own line.
 %    \begin{macrocode}
 \def\hw@process@end{%
-    \ifnum\numexpr(\hw@charcount+\hw@wordcount+1)\relax<\hw@maxprintline\relax
+    \ifnum\numexpr(\hw@charcount+\hw@wordcount)\relax<\hw@maxprintline\relax
       \protected@edef\hw@wrappedtext{%
         \hw@currtext
         \ifx\hw@currline\@empty\else
@@ -572,7 +585,7 @@ This work consists of the file  hardwrap.dtx
 % A simple string-length macro.
 %    \begin{macrocode}
 \def\hw@strlen#1{%
- \number\numexpr\hw@Ncharscan#1\hw@scanstop\relax
+  \numexpr0\hw@Ncharscan#1\hw@scanstop\relax
 }
 \def\hw@Ncharscan#1{%
  \ifx#1\hw@scanstop
@@ -616,7 +629,7 @@ This work consists of the file  hardwrap.dtx
 % \LaTeX{} informational, warning, and error messages are printed in the
 % format:
 % \begin{center}
-%   \ttfamily
+%   \ttfamily\small
 %   \begin{tabular}{l@{\space}l}
 %     Package \meta{pkgname} Info: & This is an informational message.\\
 %     (\meta{pkgname})             & That spans multiple lines. The\\
@@ -762,7 +775,7 @@ This work consists of the file  hardwrap.dtx
   }%
 }
 %    \end{macrocode}
-% Here are our wrappers for \cs{PackageInfo}, et~al., which are
+% Here are our wrappers for \cs{PackageInfo} \etal, which are
 % used above to generalise the code a little. Note that these macros are
 % \cs{protected}, which allows them to be used in an expanding context
 % without a preceding \cs{noexpand}.
