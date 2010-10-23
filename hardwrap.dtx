@@ -355,7 +355,6 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 %
 % \section{Preliminaries}
-% Intentionally kept to a minimum.
 %    \begin{macrocode}
 \IfFileExists{ifplatform.sty}{%
   \RequirePackage{ifplatform}
@@ -363,6 +362,18 @@ This work consists of the file  hardwrap.dtx
   \newif\ifwindows
   \IfFileExists{/dev/null}{\windowsfalse}{\windowstrue}
 }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\IfFileExists{pdftexcmds.sty}{%
+  \RequirePackage{pdftexcmds}
+}{%
+  \def\pdf@shellescape{\pdfshellescape}
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\RequirePackage{ifxetex}
 %    \end{macrocode}
 %
 % \begin{macro}{\hw@charcount,\hw@wordcount}
@@ -443,8 +454,12 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \newcount\hw@maxprintline
 \ifwindows\else
-  \ifnum\pdfshellescape>0\relax
-    \hw@maxprintline=\@@input"|kpsewhich -var-value=max_print_line"\relax
+  \ifxetex\else
+    \ifluatex\else
+      \ifnum\pdf@shellescape>0\relax
+        \hw@maxprintline=\@@input"|kpsewhich -var-value=max_print_line"\relax
+      \fi
+    \fi
   \fi
 \fi
 \ifnum\hw@maxprintline=0\relax
