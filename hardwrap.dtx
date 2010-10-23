@@ -639,6 +639,7 @@ This work consists of the file  hardwrap.dtx
 % break and put the word on its own line.
 %    \begin{macrocode}
 \def\hw@process@end{%
+  \hw@wordcount=\hw@strlen@of\hw@currword\relax
   \ifnum\numexpr(\hw@charcount+\hw@wordcount)<\hw@maxprintline
     \edef\hw@wrappedtext{%
       \hw@currtext
