@@ -38,7 +38,8 @@ This work consists of the file  hardwrap.dtx
 %<batchfile>\endbatchfile
 %<*internal>
 \generate{\file{hardwrap.ins}{\from{hardwrap.dtx}{batchfile}}}
-\generate{\file{hardwrap.tests}{\from{hardwrap.dtx}{testsuite}}}
+\generate{\file{hardwrap.tests}{\from{hardwrap.dtx}{tests}}}
+\generate{\file{hardwrap-test.tex}{\from{hardwrap.dtx}{testsuite,tests}}}
 \def\tmpa{plain}
 \ifx\tmpa\fmtname\endgroup\expandafter\bye\fi
 \endgroup
@@ -860,32 +861,22 @@ This work consists of the file  hardwrap.dtx
 %
 % \part{Test suite}
 %
-% \def\LIPSUM{Lorem ipsum dolor sit amet, consectetuer
-%   adipiscing elit. Ut purus elit, vestibulum ut, placerat ac,
-%   adipiscing vitae, felis. Curabitur dictum gravida mauris. Nam arcu
-%   libero, nonummy eget, consectetuer id, vulputate a, magna. Donec
-%   vehicula augue eu neque.}
-%
 % {\catcode`\%=14\input{hardwrap.tests}}
 %
 %    \begin{macrocode}
-%<*testsuite>
+%<testsuite>\documentclass{article}
+%<testsuite>\usepackage{hardwrap,qstest}
+%<testsuite>\begin{document}
+%<*tests>
 %    \end{macrocode}
 %
-% \GeneratePackageLogMacros[HW]{hardwrap}
-% \GenerateClassLogMacros[HWC]{hardwrap}
-% ^^A \HW@error{Please ignore this error!}{}
-% \HW@info{\LIPSUM}
-% \HW@info@noline{\LIPSUM}
-% \HW@warning{\LIPSUM}
-% \HW@warning@noline{\LIPSUM}
-% \HW@warning{Terminal spaces\MessageBreak used to\\ cause an infinite loop! No more }
-% \HW@warning{\space Testing\space\space\space spaces.\space}
-% \HW@warning{Hello!\MessageBreak This is an example of the hardwrap logging macro. Lets hope that it works properly and wrap our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
-%
-% \typeout{Note that if we're inserting manual line breaks, we can only reach column 78:}
-% \typeout{123456789012345678901234567890123456789012345678901234567890123456789012345678^^J123}
-% \typeout{1234567890123456789012345678901234567890123456789012345678901234567890123456789^^J123}
+%    \begin{macrocode}
+\gdef\LIPSUM{Lorem ipsum dolor sit amet, consectetuer
+  adipiscing elit. Ut purus elit, vestibulum ut, placerat ac,
+  adipiscing vitae, felis. Curabitur dictum gravida mauris. Nam arcu
+  libero, nonummy eget, consectetuer id, vulputate a, magna. Donec
+  vehicula augue eu neque.}
+%    \end{macrocode}
 %
 %    \begin{macrocode}
 \begin{qstest}{basics}{}
@@ -924,6 +915,20 @@ This work consists of the file  hardwrap.dtx
 \end{qstest}
 %    \end{macrocode}
 %
+% \GeneratePackageLogMacros[HW]{hardwrap}
+% \GenerateClassLogMacros[HWC]{hardwrap}
+% ^^A \HW@error{Please ignore this error!}{}
+% \HW@info{\LIPSUM}
+% \HW@info@noline{\LIPSUM}
+% \HW@warning{\LIPSUM}
+% \HW@warning@noline{\LIPSUM}
+% \HW@warning{Terminal spaces\MessageBreak used to\\ cause an infinite loop! No more }
+% \HW@warning{\space Testing\space\space\space spaces.\space}
+% \HW@warning{Hello!\MessageBreak This is an example of the hardwrap logging macro. Lets hope that it works properly and wrap our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
+%
+% \typeout{Note that if we're inserting manual line breaks, we can only reach column 78:}
+% \typeout{123456789012345678901234567890123456789012345678901234567890123456789012345678^^J123}
+% \typeout{1234567890123456789012345678901234567890123456789012345678901234567890123456789^^J123}
 %
 % \HW@info{Testing}
 %
@@ -958,7 +963,8 @@ This work consists of the file  hardwrap.dtx
 % \closeout\textfile
 %
 %    \begin{macrocode}
-%</testsuite>
+%</tests>
+%<testsuite>\end{document}
 %    \end{macrocode}
 %
 % \Finale
