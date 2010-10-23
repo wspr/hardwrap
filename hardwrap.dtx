@@ -241,8 +241,10 @@ This work consists of the file  hardwrap.dtx
 % result with \meta{function}. The \meta{text} is fully expanded before being
 % hard-wrapped; while doing so, the \meta{setup code} may be used to change
 % local command definitions.
+%
 % Inside \meta{text}, you may use \verb|\\| to force a new line and \verb*|\ | to
 % insert a space.
+% A literal \verb|^^J| will also be treated as a forced \meta{newline}.
 %
 % Examples will be given in Section~\ref{examples}.
 %
@@ -592,9 +594,12 @@ This work consists of the file  hardwrap.dtx
   \else\ifx\let@token\hw@insert@newline
     \hw@process@messagebreak
     \def\next{\expandafter\hw@dochar\@gobble}%
+  \else\ifx\let@token^^J
+    \hw@process@messagebreak
+    \def\next{\expandafter\hw@dochar\@gobble}%
   \else
     \let\next\hw@dochar
-  \fi\fi\fi
+  \fi\fi\fi\fi
   \next
 }
 %    \end{macrocode}
@@ -929,6 +934,14 @@ This work consists of the file  hardwrap.dtx
     \HardWrap{\xdef\TMP}{50}{}{NEWLINE}{\LIPSUM}%
   x}
 \Expect*{\the\wd\myboxa}*{\the\wd\myboxb}
+\end{qstest}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\begin{qstest}{deal with explicit newlines}{}
+\HardWrap{\xdef\TMP}{50}{}{NEWLINE}{aaa bbb^^Jccc}%
+\Expect*{\TMP}
+  *{aaa bbbNEWLINEccc}
 \end{qstest}
 %    \end{macrocode}
 %
