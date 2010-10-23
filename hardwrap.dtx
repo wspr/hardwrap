@@ -379,7 +379,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@charcount,\hw@wordcount}
 % These hold, respectively, the number of characters on the current
-% line and the second the number of characters in the current word.
+% line and the number of characters in the current word.
 %    \begin{macrocode}
 \newcount\hw@charcount
 \newcount\hw@wordcount
@@ -387,7 +387,7 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@currtext,\hw@currline,\hw@currword}
-% Used to store the current word, current line, and current wrapped text.
+% Local variables to store the current contents of the wrapped text, line, and word.
 %    \begin{macrocode}
 \def\hw@currtext{}
 \def\hw@currline{}
@@ -431,6 +431,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@strlen,\hw@strlen@of}
 % A simple string-length macro.
+% \cs{hw@strlen}\marg{token list} is the number of tokens (or brace groups) of its \meta{token list} argument without expansion. 
 %    \begin{macrocode}
 \def\hw@strlen#1{%
   \numexpr0\hw@Ncharscan#1\hw@scanstop\relax
@@ -443,6 +444,9 @@ This work consists of the file  hardwrap.dtx
  \fi
  {+1\hw@Ncharscan}%
 }
+%    \end{macrocode}
+% Variant \cs{hw@strlen@of}\meta{macro} is the number of tokens (or brace groups) of the contents of its \meta{macro} argument.
+%    \begin{macrocode}
 \def\hw@strlen@of#1{%
   \expandafter\hw@strlen\expandafter{#1}%
 }
@@ -451,18 +455,21 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@maxprintline}
 % Some code to detect \TeX's \textit{max\_print\_line} value.
-% This doesn't work with MiK\TeX{} (yet?), so we disable it under Windows always.
+% This only works for \hologo{pdfTeX} in TeX Live.
 %    \begin{macrocode}
 \newcount\hw@maxprintline
-\ifwindows\else
+\ifluatex\else
   \ifxetex\else
-    \ifluatex\else
+    \ifwindows\else
       \ifnum\pdf@shellescape>0\relax
         \hw@maxprintline=\@@input"|kpsewhich -var-value=max_print_line"\relax
       \fi
     \fi
   \fi
 \fi
+%    \end{macrocode}
+% In the non-unlikely chance the correct value cannot be determined, the usual default is assumed. This value will rarely, if ever, be different to the default, so assuming this number is very safe.
+%    \begin{macrocode}
 \ifnum\hw@maxprintline=0\relax
   \hw@maxprintline=79\relax % default
 \fi
@@ -481,7 +488,17 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Main procedure}
 %
+% The idea for hard wrapping the text is to assume we can fully expand the argument and then iterate character-by-character over the message inserting \meta{newline} commands where appropriate.
+% The steps are
+% \begin{enumerate}
+% \item Make local redefinitions for general commands, including special placeholders for \meta{space} and \meta{newline}.
+% \item Fully expand the text-to-be-wrapped with appropriate definitions of \cs{protect} and \cs{noexpand} so the resultant text can be assumed to completely `safe' to scan over (and continue expanding) but \emph{without} removing important macro placeholders for \meta{space}, \meta{newline}.
+% \item Then scan char-by-char. Whenever a space is found, check the last word length and either append it to the current line if it will fit, or start a new line with a forced line break represented by another special placeholder macro. Spaces are represented with placeholders so multiple spaces don't collapse according to \TeX's usual space-handling rules.
+% \item Finally process the wrapped text with appropriate meanings for the placeholder macros.
+% \end{enumerate}
+%
 % \begin{macro}{\HardWrap}
+% Here's the main command that implements the steps outlined above.
 % Arguments:
 % \begin{enumerate}\parskip=0pt\itemsep=0pt
 % \item \marg{function}
