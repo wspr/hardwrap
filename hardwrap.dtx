@@ -564,7 +564,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@process}
 % The \cs{hw@process} macro contains the actual word-wrapping algorithm.
-% The text is scanned token by token.  Each token falls into one of three
+% The text is scanned token by token.  Each token falls into one of four
 % categories: (1)~the stop token \cs{hw@scanstop}, (2)~a space token,
 % (3)~a newline insertion, or (4)~anything else.
 %
@@ -580,7 +580,7 @@ This work consists of the file  hardwrap.dtx
 % the current word is the last one that can fit on the line.
 % To continue, skip the actual token that is the `newline' and then start scanning again.
 % \item
-% If the token is neither the stop token nor a space, we'll just append it to
+% If the token doesn't fall into one of the above special cases, we'll just append it to
 % the current word and continue reading tokens.
 % \end{enumerate}
 %    \begin{macrocode}
