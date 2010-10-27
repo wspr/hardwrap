@@ -173,7 +173,7 @@ This work consists of the file  hardwrap.dtx
 \hypersetup{%
   linktocpage,
   linkcolor=niceblue,
-  pdfauthor={Kevin Godby and Will Robertson}
+  pdfauthor={Will Robertson and Kevin Godby}
 }
 
 % A few shorthand macros to ensure consistency
@@ -294,6 +294,9 @@ This work consists of the file  hardwrap.dtx
 % \def\HardWrapSetup{%
 %   \def\MessageBreak{\\}%
 %   \def\newline{\\}%
+%   \def\emph##1{\string_##1\string_}%
+%   \def\textit##1{/##1/}%
+%   \def\textbf##1{*##1*}%
 % }
 % \end{Verbatim}
 %
@@ -701,6 +704,9 @@ This work consists of the file  hardwrap.dtx
 \def\HardWrapSetup{%
   \def\MessageBreak{\\}%
   \def\newline{\\}%
+  \def\emph##1{\string_##1\string_}%
+  \def\textit##1{/##1/}%
+  \def\textbf##1{*##1*}%
 }
 %    \end{macrocode}
 % \end{macro}
