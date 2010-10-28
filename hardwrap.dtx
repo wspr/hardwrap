@@ -593,7 +593,7 @@ This work consists of the file  hardwrap.dtx
     \let\next\@gobble
   \else\ifx\let@token\@sptoken
     \hw@process@space
-    \let\next\hw@dochar
+    \def\next{\afterassignment\hw@scan\let\@tempa= }%
   \else\ifx\let@token\hw@insert@newline
     \hw@process@messagebreak
     \def\next{\expandafter\hw@dochar\@gobble}%
@@ -612,20 +612,10 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@dochar}
 % After a letter, the \cs{hw@dochar} macro just appends a token (non-space and non-stop token) to the current word.
-% After a space token, however, the following argument could possibly be \cs{hw@scanstop}, so we need to special-case this branch. I have a feeling that a `gobble-space' function is possible which would make this all a bit more elegant but this works for now.
 %    \begin{macrocode}
 \def\hw@dochar#1{%
-  \protected\def\@tempa{#1}%
-  \ifx\@tempa\hw@scanstop
-    \let\next\hw@process@end
-  \else\ifx\@tempa\hw@insert@newline
-    \hw@process@messagebreak
-    \let\next\hw@scan
-  \else
-    \edef\hw@currword{\hw@currword #1}%
-    \let\next\hw@scan
-  \fi\fi
-  \next
+  \edef\hw@currword{\hw@currword #1}%
+  \hw@scan
 }
 %    \end{macrocode}
 % \end{macro}
@@ -930,7 +920,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \begin{qstest}{newline}{}
 \HardWrap{\xdef\TMP}{50}{}{NEWLINE}{aaa \\ bbb ccc}
-\Expect*{\TMP}{aaa NEWLINE bbb ccc}
+\Expect*{\TMP}{aaa NEWLINEbbb ccc}
 \end{qstest}
 %    \end{macrocode}
 %
