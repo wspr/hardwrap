@@ -600,9 +600,11 @@ This work consists of the file  hardwrap.dtx
   \else\ifx\let@token^^J
     \hw@process@messagebreak
     \def\next{\expandafter\hw@dochar\@gobble}%
+  \else\ifx\let@token\bgroup
+    \def\next{\expandafter\hw@dochar\hw@process@group}%
   \else
     \let\next\hw@dochar
-  \fi\fi\fi\fi
+  \fi\fi\fi\fi\fi
   \next
 }
 %    \end{macrocode}
@@ -694,6 +696,18 @@ This work consists of the file  hardwrap.dtx
       \hw@currtext\hw@currline\hw@protected@newline\hw@currword
     }%
   \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\hw@process@group}
+% If a brace group is found, we read it as an argument and then surround it with brace strings.
+% (I.e., braces are printed.)
+%    \begin{macrocode}
+\edef\hw@process@group#1{%
+  \expandafter\@gobble\string\{%
+  #1%
+  \expandafter\@gobble\string\}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -948,6 +962,39 @@ This work consists of the file  hardwrap.dtx
 \HardWrap{\xdef\TMP}{50}{}{NEWLINE}{aaa bbb^^Jccc}%
 \Expect*{\TMP}
   *{aaa bbbNEWLINEccc}
+\end{qstest}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\begin{qstest}{print braces properly}{}
+\begingroup
+  \escapechar=-1
+  \xdef\EXPECT{a bb ccc dddd\string\{ eeeeeNEWLINEffffff\string\} ggggg hhhh}
+\endgroup
+\HardWrap{\xdef\TMP}{20}{}{NEWLINE}{a bb ccc dddd{ eeeee ffffff} ggggg hhhh}%
+\Expect*{\TMP}*{\EXPECT}
+\end{qstest}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\begin{qstest}{print braces properly II}{}
+\begingroup
+  \escapechar=-1
+  \xdef\EXPECT{a bb ccc dddd\string\{ eeeeeNEWLINEffffff \string\}ggggg hhhh}
+\endgroup
+\HardWrap{\xdef\TMP}{20}{}{NEWLINE}{a bb ccc dddd{ eeeee ffffff }ggggg hhhh}%
+\Expect*{\TMP}*{\EXPECT}
+\end{qstest}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\begin{qstest}{print braces properly III}{}
+\begingroup
+  \escapechar=-1
+  \xdef\EXPECT{a bb ccc dddd \string\{eeeeeNEWLINEffffff\string\} ggggg hhhh}
+\endgroup
+\HardWrap{\xdef\TMP}{20}{}{NEWLINE}{a bb ccc dddd {eeeee ffffff} ggggg hhhh}%
+\Expect*{\TMP}*{\EXPECT}
 \end{qstest}
 %    \end{macrocode}
 %
