@@ -1,0 +1,13 @@
+README
+hardwrap-test.*
+*.aux
+*.hd
+*.ins
+*.log
+*.out
+*.pdf
+*.sty
+*.tar.gz
+*.tests
+*.toc
+*.txt
