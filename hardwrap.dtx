@@ -256,8 +256,8 @@ This work consists of the file  hardwrap.dtx
 % package and document class authors to do this.
 %
 % \begin{quote}
-%   \cs{GeneratePackageLogMacros}\oarg{prefix}\marg{package name}\\
-%   \cs{GenerateClassLogMacros}\texttt{\space \space}\oarg{prefix}\marg{class name}
+%   \cs{GenerateLogMacros}\earg{package}\oarg{prefix}\marg{package name}\\
+%   \cs{GenerateLogMacros}\earg{class}\texttt{\space \space}\oarg{prefix}\marg{class name}
 % \end{quote}
 % If the optional argument \meta{prefix} is not given, it is set equal to \meta{package name}.
 % These two commands will generate the following macros:
@@ -270,15 +270,15 @@ This work consists of the file  hardwrap.dtx
 %   \cs{\meta{prefix}@error}\marg{error}\marg{help}
 % \end{quote}
 %
-% For instance, calling \cs{GeneratePackageLogMacros}\earg{mypackage}
-% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, \etc.
+% For instance, calling \cs{GenerateLogMacros}\earg{package}\earg{mypackage}
+% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, \etc, which internally use \cs{PackageInfo}, \cs{PackageWarning}, and so on, to call their respective messages.
 % The arguments for the generated macros are the same as the arguments for
 % \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, \etc. Additionally, info messages may be printed with
 % \cs{\meta{prefix}@info@noline} in which \LaTeX's
 % `\texttt{on input line \meta{num}}' suffix is suppressed.
 %
-% The \cs{GenerateClassLogMacros} command generates similar macros using
-% \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, \etc.
+% The \cs{GenerateLogMacros}\earg{class} command generates similar macros using
+% \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, \etc, instead.
 %
 % Note that no punctuation is added after messages, unlike standard \LaTeX.
 % You are free to punctuate your messages as you wish.
@@ -299,10 +299,12 @@ This work consists of the file  hardwrap.dtx
 %   \def\textbf##1{*##1*}%
 % }
 % \end{Verbatim}
+% The redefinitions for \cs{emph}, \cs{textit}, and \cs{textbf} are examples
+% of the type of customisation you might like to perform.
 %
-% \section{Customizing the output}
+% \section{Changing the line lengths}
 %
-% While \pkg{\jobname} goes to some effort to determine the appropriate line
+% While \pkg{\jobname} attempts to determine the appropriate line
 % lengths, you may wish to override the value found using
 %   \cs{setmaxprintline}\marg{value}.
 % This macro takes an integer value which is subsequently used as the
@@ -703,7 +705,7 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\HardWrapSetup}
-% This is the command to use if you want to `special-case' some meanings to be more appropriate inside message text. When using \cs{GeneratePackageLogMacros}, it is used by default for argument \verb|#3| in \cs{HardWrap}.
+% This is the command to use if you want to `special-case' some meanings to be more appropriate inside message text. When using \cs{GenerateLogMacros}, it is used by default for argument \verb|#3| in \cs{HardWrap}.
 %    \begin{macrocode}
 \def\HardWrapSetup{%
   \def\MessageBreak{\\}%
@@ -757,11 +759,35 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\GeneratePackageLogMacros,\GenerateClassLogMacros}
+% \begin{macro}{\GenerateLogMacros}
 % Shortcuts are provided for generating logging macros that automatically wrap
 % the text provided to them.  The \cs{GeneratePackageLogMacros} and
 % \cs{GenerateClassLogMacros} calculate the various lengths of $B$
 % appropriately.
+%    \begin{macrocode}
+\newcommand\GenerateLogMacros[1]{%
+  \lowercase{\def\hw@tempa{#1}}%
+  \def\hw@tempb{package}%
+  \ifx\hw@tempa\hw@tempb
+    \expandafter\GeneratePackageLogMacros
+  \else
+    \def\hw@tempb{class}%
+    \ifx\hw@tempa\hw@tempb
+      \expandafter\expandafter\expandafter\GenerateClassLogMacros
+    \else
+      \PackageError{hardwrap}{\MessageBreak
+        \string\GenerateLogMacros\space only accepts "package"
+        \MessageBreak or "class" types%
+      }{%
+        E.g., \detokenize{\GenerateLogMacros{package}[HW]{hardwrap}}%
+      }%
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GeneratePackageLogMacros,\GenerateClassLogMacros}
 %    \begin{macrocode}
 \newcommand{\GeneratePackageLogMacros}[2][]{%
   \hw@generate@logging@macros{package}{#1}{#2}%
@@ -988,13 +1014,13 @@ This work consists of the file  hardwrap.dtx
 \end{qstest}
 %    \end{macrocode}
 %
-% \GeneratePackageLogMacros[HW]{hardwrap}
-% \GenerateClassLogMacros[HWC]{hardwrap}
+% \GenerateLogMacros{package}[HW]{hardwrap}
+% \GenerateLogMacros{class}[HWC]{hardwrap}
 % ^^A\HW@error{Please ignore this error!\\ I'm only testing things out.}{(Go away.)}
 % \HW@info{\LIPSUM}
-% \HW@info@noline{\LIPSUM}
+% \HWC@info@noline{\LIPSUM}
 % \HW@warning{\LIPSUM}
-% \HW@warning@noline{\LIPSUM}
+% \HWC@warning@noline{\LIPSUM}
 % \HW@warning{Terminal spaces\MessageBreak used to\\ cause an infinite loop! No more }
 % \HW@warning{\space Testing\space\space\space spaces.\space}
 % \HW@warning{Hello!\MessageBreak This is an example of the hardwrap logging macro. Lets hope that it works properly and wrap our text to just the right length. (These words should reach all the way until the end of TeX's hard-wrapped log file output.) If not, panic!}
