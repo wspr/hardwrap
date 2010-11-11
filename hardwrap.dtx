@@ -534,8 +534,8 @@ This work consists of the file  hardwrap.dtx
 % (Fully \cs{protected} macros will still be actual control sequences
 % at this point.)
 %    \begin{macrocode}
-    #3%
     \begingroup
+      #3%
       \let\protect\string
       \xdef\@tempa{#5}%
     \endgroup
@@ -990,7 +990,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \GeneratePackageLogMacros[HW]{hardwrap}
 % \GenerateClassLogMacros[HWC]{hardwrap}
-% ^^A \HW@error{Please ignore this error!}{}
+% ^^A\HW@error{Please ignore this error!\\ I'm only testing things out.}{(Go away.)}
 % \HW@info{\LIPSUM}
 % \HW@info@noline{\LIPSUM}
 % \HW@warning{\LIPSUM}
