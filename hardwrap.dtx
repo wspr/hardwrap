@@ -173,6 +173,8 @@ This work consists of the file  hardwrap.dtx
 \hypersetup{%
   linktocpage,
   linkcolor=niceblue,
+  anchorcolor=niceblue,
+  urlcolor=niceblue,
   pdfauthor={Will Robertson and Kevin Godby}
 }
 
@@ -180,13 +182,14 @@ This work consists of the file  hardwrap.dtx
 \newcommand{\email}[1]{$\langle$\href{mailto:#1}{#1}$\rangle$}
 \usepackage{xspace}
 \newcommand{\hairsp}{\kern1pt}% hair space
-\let\latintext\emph% or \relax for no italics
+\let\latintext\relax% or \emph for italics
 \newcommand*{\latinphrase}[1]{\latintext{#1}\@ifnextchar.{}{.\xspace}}
 \newcommand*{\ie}{\latinphrase{i.\hairsp e\@}}% TODO search for and add comma if not found
 \newcommand*{\eg}{\latinphrase{e.\hairsp g\@}}% TODO search for and add comma if not found
 \newcommand*{\etc}{\latinphrase{etc}}
 \newcommand*{\etal}{\latinphrase{et\,al}}
 
+\newcommand*{\secref}[1]{\hyperref[#1]{section~}\ref{#1}}
 
 \definecolor{niceblue}{rgb}{0.1,0.3,0.9}
 \def\theCodelineNo{\textcolor{niceblue}{\sffamily\tiny\arabic{CodelineNo}}}
@@ -213,7 +216,7 @@ This work consists of the file  hardwrap.dtx
 % \begin{abstract}
 %   \noindent This package provides facilities for hard-wrapping text to a certain
 %   line width. The primary purpose is to make it easier for package authors to write
-%   informational messages for the console and log file;
+%   readable informational messages to the console and log file;
 %   wrappers around \cs{PackageWarning} \etal\ are provided for this.
 % \end{abstract}
 %
@@ -246,7 +249,7 @@ This work consists of the file  hardwrap.dtx
 % insert a space.
 % A literal \verb|^^J| will also be treated as a forced \meta{newline}.
 %
-% Examples will be given in Section~\ref{examples}.
+% Examples will be given in \secref{sec:examples}.
 %
 % \section{Wrapping log messages}
 %
@@ -271,14 +274,17 @@ This work consists of the file  hardwrap.dtx
 % \end{quote}
 %
 % For instance, calling \cs{GenerateLogMacros}\earg{package}\earg{mypackage}
-% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, \etc, which internally use \cs{PackageInfo}, \cs{PackageWarning}, and so on, to call their respective messages.
+% will create macros called \cs{mypackage@info}, \cs{mypackage@warning}, \etc,
+% which internally use \cs{PackageInfo}, \cs{PackageWarning}, and so on, to
+% handle their respective messages.
 % The arguments for the generated macros are the same as the arguments for
 % \cs{PackageInfo}\marg{package name}, \cs{PackageWarning}\marg{package name}, \etc. Additionally, info messages may be printed with
 % \cs{\meta{prefix}@info@noline} in which \LaTeX's
 % `\texttt{on input line \meta{num}}' suffix is suppressed.
 %
-% The \cs{GenerateLogMacros}\earg{class} command generates similar macros using
-% \cs{ClassInfo}\marg{\rmfamily class name}, \cs{ClassWarning}\marg{\rmfamily class name}, \etc, instead.
+% The \cs{GenerateLogMacros}\earg{class} command instead generates analogous
+% macros using \cs{ClassInfo}\marg{\rmfamily class name},
+% \cs{ClassWarning}\marg{\rmfamily class name}, \etc.
 %
 % Note that no punctuation is added after messages, unlike standard \LaTeX.
 % You are free to punctuate your messages as you wish.
@@ -288,7 +294,7 @@ This work consists of the file  hardwrap.dtx
 % mean, respectively, \meta{space} and \meta{newline}.
 %
 % Additional redefinitions are stored in the macro \cs{HardWrapSetup}, which may
-% be altered before executing \cs{Generate...LogMacros} to change the behaviour
+% be altered before executing \cs{GenerateLogMacro} to change the behaviour
 % of the generated commands. By default, \cs{HardWrapSetup} is defined as
 % \begin{Verbatim}
 % \def\HardWrapSetup{%
@@ -312,7 +318,7 @@ This work consists of the file  hardwrap.dtx
 % this value is~\texttt{79}.
 %
 % \section{Examples}
-% \label{examples}
+% \label{sec:examples}
 %
 % The command
 % \begin{Verbatim}
@@ -331,7 +337,9 @@ This work consists of the file  hardwrap.dtx
 % (foobar)                Aenean vel lectus. Nunc imperdiet justo nec
 % (foobar)                dolor; on input line 102.
 % \end{Verbatim}
-% Compare this to that below without the manual wrapping; \TeX\ breaks lines at 79 characters without keeping words together: (\eg, `Vestibulum' broken between lines two and three)
+% Compare this to the following without the manual wrapping; \TeX\ breaks
+% lines at 79 characters without keeping words together (\eg, `Vestibulum'
+% broken between lines two and three):
 % \begin{Verbatim}[fontsize=\footnotesize]
 % Package foobar Warning: Sed feugiat. Cum sociis natoque penatibus et magnis dis
 %  parturient montes, nascetur ridiculus mus. Ut pellentesque augue sed urna. Ves
@@ -342,7 +350,7 @@ This work consists of the file  hardwrap.dtx
 % \end{Verbatim}
 %
 % The \cs{HardWrap} macro can also be useful when writing to an external file.
-% For example, one may write
+% For example, one may use:
 % \begin{Verbatim}
 % \newwrite\textfile
 % \immediate\openout\textfile=\jobname.txt\relax
@@ -385,7 +393,7 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 %
 % \begin{macro}{\hw@charcount,\hw@wordcount}
-% These hold, respectively, the number of characters on the current
+% These counters hold, respectively, the number of characters on the current
 % line and the number of characters in the current word.
 %    \begin{macrocode}
 \newcount\hw@charcount
@@ -394,7 +402,7 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@currtext,\hw@currline,\hw@currword}
-% Local variables to store the current contents of the wrapped text, line, and word.
+% The following are local variables to store the current contents of the wrapped text, line, and word.
 %    \begin{macrocode}
 \def\hw@currtext{}
 \def\hw@currline{}
@@ -434,7 +442,7 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
-% \section{Utility Macros}
+% \section{Utility macros}
 %
 % \begin{macro}{\hw@strlen,\hw@strlen@of}
 % A simple string-length macro.
@@ -462,7 +470,7 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@maxprintline}
 % Some code to detect \TeX's \textit{max\_print\_line} value.
-% This only works for \hologo{pdfTeX} in TeX Live.
+% This only works for \hologo{pdfTeX} in \TeX{} Live.
 %    \begin{macrocode}
 \newcount\hw@maxprintline
 \ifluatex\else
@@ -495,13 +503,24 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Main procedure}
 %
-% The idea for hard wrapping the text is to assume we can fully expand the argument and then iterate character-by-character over the message inserting \meta{newline} commands where appropriate.
-% The steps are
+% The idea for hard-wrapping the text is to assume we can fully expand the
+% argument and then iterate character-by-character over the message inserting
+% \meta{newline} commands where appropriate.  The steps are:
 % \begin{enumerate}
-% \item Make local redefinitions for general commands, including special placeholders for \meta{space} and \meta{newline}.
-% \item Fully expand the text-to-be-wrapped with appropriate definitions of \cs{protect} and \cs{noexpand} so the resultant text can be assumed to completely `safe' to scan over (and continue expanding) but \emph{without} removing important macro placeholders for \meta{space}, \meta{newline}.
-% \item Then scan char-by-char. Whenever a space is found, check the last word length and either append it to the current line if it will fit, or start a new line with a forced line break represented by another special placeholder macro. Spaces are represented with placeholders so multiple spaces don't collapse according to \TeX's usual space-handling rules.
-% \item Finally process the wrapped text with appropriate meanings for the placeholder macros.
+% \item Make local redefinitions for general commands, including special
+%   placeholders for \meta{space} and \meta{newline}.
+% \item Fully expand the text-to-be-wrapped with appropriate definitions of
+%   \cs{protect} and \cs{noexpand} so the resultant text can be assumed to
+%   completely `safe' to scan over (and continue expanding) but \emph{without}
+%   removing important macro placeholders for \meta{space} and \meta{newline}.
+% \item Then scan character by character. Whenever a space is found, check the
+%   last word length and either append the word to the current line if it will
+%   fit, or start a new line with a forced line break represented by another
+%   special placeholder macro. Spaces are represented with placeholders so
+%   multiple spaces don't collapse according to \TeX's usual space-handling
+%   rules.
+% \item Finally process the wrapped text with appropriate meanings for the
+%   placeholder macros.
 % \end{enumerate}
 %
 % \begin{macro}{\HardWrap}
@@ -693,8 +712,8 @@ This work consists of the file  hardwrap.dtx
 % \end{macro}
 %
 % \begin{macro}{\hw@process@group}
-% If a brace group is found, we read it as an argument and then surround it with brace strings.
-% (I.e., braces are printed.)
+% If a brace group is found, we read it as an argument and then surround it with brace strings
+% (\ie, braces are printed).
 %    \begin{macrocode}
 \edef\hw@process@group#1{%
   \expandafter\@gobble\string\{%
@@ -717,7 +736,7 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % \end{macro}
 %
-% \section{Wrapping Log Messages}
+% \section{Wrapping log messages}
 %
 % \begin{samepage}
 % \LaTeX{} informational, warning, and error messages are printed in the
