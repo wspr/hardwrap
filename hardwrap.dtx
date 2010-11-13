@@ -191,6 +191,32 @@ This work consists of the file  hardwrap.dtx
 
 \newcommand*{\secref}[1]{\hyperref[#1]{section~}\ref{#1}}
 
+% Hang the code line numbers in the margin
+\def\macro@code{%
+   \topsep \MacrocodeTopsep
+   \@beginparpenalty \predisplaypenalty
+   \if@inlabel\leavevmode\fi
+   \trivlist \parskip \z@ \item[]%
+   \macro@font
+   \leftskip\@totalleftmargin% \advance\leftskip-\MacroIndent
+   \rightskip\z@ \parindent\z@ \parfillskip\@flushglue
+   \blank@linefalse \def\par{\ifblank@line
+                             \leavevmode\fi
+                             \blank@linetrue\@@par
+                             \penalty\interlinepenalty}
+   \obeylines
+   \let\do\do@noligs \verbatim@nolig@list
+   \let\do\@makeother \dospecials
+   \global\@newlistfalse
+   \global\@minipagefalse
+   \ifcodeline@index
+     \everypar{\global\advance\c@CodelineNo\@ne
+               \llap{\theCodelineNo\ \hskip\@totalleftmargin}%
+               \check@module}%
+   \else \everypar{\check@module}%
+   \fi
+   \init@crossref}
+
 \definecolor{niceblue}{rgb}{0.1,0.3,0.9}
 \def\theCodelineNo{\textcolor{niceblue}{\sffamily\tiny\arabic{CodelineNo}}}
 \newcommand*\pkg[1]{\textsf{#1}}
@@ -360,7 +386,15 @@ This work consists of the file  hardwrap.dtx
 % \end{Verbatim}
 % to write the text to a file after being hard-wrapped with carriage returns (\verb|^^J|) after each line.
 %
-% \newpage
+% \section{Support}
+%
+% Development and historical versions are available from GitHub at
+% \url{http://github.com/wspr/hardwrap/}.
+%
+% Please report bugs and feature suggestions to the issue tracker at
+% \url{http://github.com/wspr/hardwrap/issues}.
+%
+% \clearpage
 % \splittoc
 % \part{Implementation}
 %
