@@ -622,9 +622,9 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{macro}{\hw@process}
 % The \cs{hw@process} macro contains the actual word-wrapping algorithm.
-% The text is scanned token by token.  Each token falls into one of four
+% The text is scanned token by token.  Each token falls into one of five
 % categories: (1)~the stop token \cs{hw@scanstop}, (2)~a space token,
-% (3)~a newline insertion, or (4)~anything else.
+% (3)~a newline insertion, (4)~an opening brace, or (5)~anything else.
 %
 % \begin{enumerate}
 % \item
@@ -637,6 +637,10 @@ This work consists of the file  hardwrap.dtx
 % If we find an explicit `newline', we process it much as if it were a space and
 % the current word is the last one that can fit on the line.
 % To continue, skip the actual token that is the `newline' and then start scanning again.
+% \item
+% If we find an opening brace \verb|{|, we read in the entire brace group, and then
+% re-insert it in the scanner surrounded with brace-strings. I.e., braces are printed
+% in the output.
 % \item
 % If the token doesn't fall into one of the above special cases, we'll just append it to
 % the current word and continue reading tokens.
