@@ -651,10 +651,10 @@ This work consists of the file  hardwrap.dtx
     \def\next{\afterassignment\hw@scan\let\@tempa= }%
   \else\ifx\let@token\hw@insert@newline
     \hw@process@messagebreak
-    \def\next{\expandafter\hw@dochar\@gobble}%
+    \def\next{\expandafter\hw@scan\@gobble}%
   \else\ifx\let@token^^J
     \hw@process@messagebreak
-    \def\next{\expandafter\hw@dochar\@gobble}%
+    \def\next{\expandafter\hw@scan\@gobble}%
   \else\ifx\let@token\bgroup
     \def\next{\expandafter\hw@dochar\hw@process@group}%
   \else
@@ -1064,6 +1064,13 @@ This work consists of the file  hardwrap.dtx
 \endgroup
 \HardWrap{\xdef\TMP}{20}{}{NEWLINE}{a bb ccc dddd {eeeee ffffff} ggggg hhhh}%
 \Expect*{\TMP}*{\EXPECT}
+\end{qstest}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\begin{qstest}{trailing newline bug}{}
+\HardWrap{\xdef\TMP}{20}{}{N}{a\\b\\c\\}%
+\Expect*{\TMP}*{aNbNcN}
 \end{qstest}
 %    \end{macrocode}
 %
