@@ -9,7 +9,7 @@
 \preamble
   ____________________________
   The HARDWRAP package
-  (C) 2010 Will Robertson
+  (C) 2010-2011 Will Robertson
   (C) 2010 Kevin Godby
   License information appended
 
@@ -241,7 +241,8 @@ This work consists of the file  hardwrap.dtx
 %
 % \begin{abstract}
 %   \noindent This package provides facilities for hard-wrapping text to a certain
-%   line width. The primary purpose is to make it easier for package authors to write
+%   number of characters per line.
+%   The primary purpose is to make it easier for package authors to write
 %   readable informational messages to the console and log file;
 %   wrappers around \cs{PackageWarning} \etal\ are provided for this.
 % \end{abstract}
@@ -253,7 +254,8 @@ This work consists of the file  hardwrap.dtx
 % \part{User documentation}
 % \section{Introduction}
 %
-% The \pkg{\jobname} package provides a macro for word-wrapping text.  In
+% The \pkg{\jobname} package provides a macro for word-wrapping text to a
+% certain number of characters per line.  In
 % addition, helper macros are available for package and document class authors
 % to use in automatically wrapping informational, warning, and error messages.
 % This package requires \hologo{eTeX}.
@@ -336,10 +338,12 @@ This work consists of the file  hardwrap.dtx
 %
 % \section{Changing the line lengths}
 %
-% While \pkg{\jobname} attempts to determine the appropriate line
-% lengths, you may wish to override the value found using
+% While \pkg{\jobname} attempts to determine the maximum line
+% lengths based on where \TeX\ will wrap its console and log output,
+% you may wish to override the value found using
 %   \cs{setmaxprintline}\marg{value}.
-% This macro takes an integer value which is subsequently used as the
+% This macro takes an integer value which is subsequently used by the
+% commands generated with \cs{GenerateLogMacros} as the
 % maximum line width allowed in the terminal output and log file. By default
 % this value is~\texttt{79}.
 %
@@ -597,7 +601,7 @@ This work consists of the file  hardwrap.dtx
 %    \end{macrocode}
 % Now scan over the text token by token, transforming it into an
 % intermediate representation of fully wrapped text.
-% Then fully expand this intermediate for into its final form,
+% Then fully expand this intermediate form into its final form,
 % ready to be processed by the input function \verb|#1|.
 %    \begin{macrocode}
     \expandafter\hw@scan\@tempa\hw@scanstop
@@ -950,7 +954,7 @@ This work consists of the file  hardwrap.dtx
   }%
 }
 %    \end{macrocode}
-% Here are our wrappers for \cs{PackageInfo} \etal, which are
+% Here are our wrappers for \cs{ClassInfo} \etal, which are
 % used above to generalise the code a little. Note that these macros are
 % \cs{protected}, which allows them to be used in an expanding context
 % without a preceding \cs{noexpand}.
@@ -961,6 +965,7 @@ This work consists of the file  hardwrap.dtx
 \protected\def\hw@class@warning@noline#1#2{\ClassWarning{#1}{#2\@gobbletwo}}
 \protected\def\hw@class@error         #1#2{\ClassError  {#1}{#2\@gobble}}
 %    \end{macrocode}
+% And package messages:
 %    \begin{macrocode}
 \protected\def\hw@package@info          #1#2{\PackageInfo   {#1}{#2\hw@suffix}}
 \protected\def\hw@package@info@noline   #1#2{\PackageInfo   {#1}{#2\@gobbletwo}}
