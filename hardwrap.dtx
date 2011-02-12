@@ -572,7 +572,7 @@ This work consists of the file  hardwrap.dtx
 %    \begin{macrocode}
 \newcommand*\HardWrap[5]{%
   \begingroup
-    \hw@maxprintline=#2\relax
+    \hw@maxprintline=\numexpr#2\relax
 %    \end{macrocode}
 % Replacements for user commands:
 %    \begin{macrocode}
