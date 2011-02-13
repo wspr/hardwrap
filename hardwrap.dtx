@@ -51,7 +51,7 @@ This work consists of the file  hardwrap.dtx
 %</driver>
 %<package>\ProvidesPackage{hardwrap}
 %<*package>
-  [2011/02/12 v0.2 Hard wrap messages]
+  [2011/02/13 v0.3 Hard wrap messages]
 %</package>
 %    \end{macrocode}
 %
@@ -486,10 +486,10 @@ This work consists of the file  hardwrap.dtx
 % A simple string-length macro.
 % \cs{hw@strlen}\marg{token list} is the number of tokens (or brace groups) of its \meta{token list} argument without expansion. 
 %    \begin{macrocode}
-\def\hw@strlen#1{%
+\long\def\hw@strlen#1{%
   \numexpr0\hw@Ncharscan#1\hw@scanstop\relax
 }
-\def\hw@Ncharscan#1{%
+\long\def\hw@Ncharscan#1{%
  \ifx#1\hw@scanstop
    \expandafter\@gobble
  \else
@@ -532,7 +532,7 @@ This work consists of the file  hardwrap.dtx
 % \begin{macro}{\setmaxprintline}
 % In case the code above borks the \cs{hw@maxprintline} value, the user can set it manually with the \cs{setmaxprintline} macro.
 %    \begin{macrocode}
-\newcommand*{\setmaxprintline}[1]{%
+\newcommand*\setmaxprintline[1]{%
   \hw@maxprintline=#1\relax
 }
 %    \end{macrocode}
@@ -574,7 +574,7 @@ This work consists of the file  hardwrap.dtx
 % This is the macro that does everything.
 % Note that the \cs{space} is first made `protected' and then restored again.
 %    \begin{macrocode}
-\newcommand*\HardWrap[5]{%
+\newcommand\HardWrap[5]{%
   \begingroup
     \hw@maxprintline=\numexpr#2\relax
 %    \end{macrocode}
@@ -676,7 +676,7 @@ This work consists of the file  hardwrap.dtx
 % \begin{macro}{\hw@dochar}
 % After a letter, the \cs{hw@dochar} macro just appends a token (non-space and non-stop token) to the current word.
 %    \begin{macrocode}
-\def\hw@dochar#1{%
+\long\def\hw@dochar#1{%
   \edef\hw@currword{\hw@currword #1}%
   \hw@scan
 }
@@ -757,7 +757,7 @@ This work consists of the file  hardwrap.dtx
 % If a brace group is found, we read it as an argument and then surround it with brace strings
 % (\ie, braces are printed).
 %    \begin{macrocode}
-\edef\hw@process@group#1{%
+\long\edef\hw@process@group#1{%
   \expandafter\@gobble\string\{%
   #1%
   \expandafter\@gobble\string\}%
@@ -771,6 +771,7 @@ This work consists of the file  hardwrap.dtx
 \def\HardWrapSetup{%
   \def\MessageBreak{\\}%
   \def\newline{\\}%
+  \def\par{\\\\}%
   \def\emph##1{\string_##1\string_}%
   \def\textit##1{/##1/}%
   \def\textbf##1{*##1*}%
@@ -1080,6 +1081,18 @@ This work consists of the file  hardwrap.dtx
 \begin{qstest}{trailing newline bug}{}
 \HardWrap{\xdef\TMP}{20}{}{N}{a\\b\\c\\}%
 \Expect*{\TMP}*{aNbNcN}
+\end{qstest}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\begin{qstest}{par test}{}
+\HardWrap{\xdef\TMP}{20}{\HardWrapSetup}{N}{%
+aaa\par
+bbb
+
+ccc
+}%
+\Expect*{\TMP}*{aaaNNbbb NNccc }
 \end{qstest}
 %    \end{macrocode}
 %
